@@ -8,7 +8,7 @@
     <!-- خط عربي زوين من Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (باستخدام import map) -->
     <script type="importmap">
         {
             "imports": {
@@ -21,6 +21,7 @@
     </script>
     
     <style>
+        /* ====== جميع الأنماط تبقى كما هي ====== */
         * {
             margin: 0;
             padding: 0;
@@ -1273,13 +1274,12 @@
     // 🔥 استيراد Firebase
     // ============================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, updateDoc, deleteDoc, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
     // ============================================================
-    // 🔥 إعدادات Firebase - استبدل هذه القيم بقيم مشروعك
-    // 🔒 استخدم GitHub Secrets أو متغيرات البيئة في الإنتاج
+    // 🔥 إعدادات Firebase - تم دمجها من الكود المقدم
     // ============================================================
     const firebaseConfig = {
         apiKey: "AIzaSyBllf-5nXOcdhxarDfcqSAPyPRz5J-IiXo",
