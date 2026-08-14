@@ -21,7 +21,6 @@
     </script>
     
     <style>
-        /* ====== كل الأنماط تبقى كما هي ====== */
         * {
             margin: 0;
             padding: 0;
@@ -1279,21 +1278,18 @@
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
 
     // ============================================================
-    // 🔥 إعدادات Firebase - 🔒 آمنة باستخدام متغيرات البيئة
+    // 🔥 إعدادات Firebase - استبدل هذه القيم بقيم مشروعك
+    // 🔒 استخدم GitHub Secrets أو متغيرات البيئة في الإنتاج
     // ============================================================
-    // ⚠️ ملاحظة: في الإنتاج، استخدم متغيرات البيئة بدلاً من وضع المفاتيح هنا
-    // يمكنك استخدام GitHub Secrets أو ملف .env
-    
     const firebaseConfig = {
-        // 🔒 استبدل هذه القيم بمتغيرات بيئية في الإنتاج
-        apiKey: "YOUR_API_KEY_HERE",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        databaseURL: "YOUR_DATABASE_URL",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID",
-        measurementId: "YOUR_MEASUREMENT_ID"
+        apiKey: "AIzaSyBllf-5nXOcdhxarDfcqSAPyPRz5J-IiXo",
+        authDomain: "wadifti-9c7b1.firebaseapp.com",
+        databaseURL: "https://wadifti-9c7b1-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "wadifti-9c7b1",
+        storageBucket: "wadifti-9c7b1.firebasestorage.app",
+        messagingSenderId: "814051581766",
+        appId: "1:814051581766:web:61fafe5f21c45811d70f47",
+        measurementId: "G-N3KWQTG3M4"
     };
 
     // تهيئة Firebase
@@ -1303,13 +1299,1398 @@
     const db = getFirestore(app);
 
     console.log('🔥 Firebase متصل بنجاح!');
-    console.log('🔒 المفاتيح محمية (استخدم متغيرات البيئة)');
 
     // ============================================================
-    // 📦 باقي الكود (جميع الدوال تبقى كما هي)
+    // 📦 البيانات
     // ============================================================
-    // ... (كل الدوال المتبقية تبقى كما هي من الكود السابق)
-    // لاحظ: هذا الكود مختصر بسبب طوله، ولكن الدوال متطابقة مع الكود السابق
+    let currentUser = null;
+    let currentUserData = null;
+    let allUsers = [];
+    let allJobs = [];
+    let allApplications = [];
+    let allReviews = [];
+    let allMessages = [];
+
+    // ============================================================
+    // 🔍 متغيرات الفلترة
+    // ============================================================
+    let ownerSectorFilter = 'all';
+    let workerSectorFilter = 'all';
+    let workerOwnerSectorFilter = 'all';
+
+    // ============================================================
+    // 🖥️ دوال الواجهة العامة
+    // ============================================================
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+        hideToast();
+    }
+
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        t.className = 'toast ' + type;
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => hideToast(), 4000);
+    }
+
+    function hideToast() {
+        const t = document.getElementById('toast');
+        t.style.display = 'none';
+        t.className = 'toast';
+    }
+
+    function showLoading(show) {
+        const loading = document.getElementById('mainLoading');
+        const content = document.getElementById('mainContent');
+        if (show) {
+            loading.style.display = 'block';
+            content.style.display = 'none';
+        } else {
+            loading.style.display = 'none';
+            content.style.display = 'block';
+        }
+    }
+
+    // ============================================================
+    // 📞 دوال الاتصال
+    // ============================================================
+    function openWhatsApp(phoneNumber) {
+        if (!phoneNumber) {
+            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
+            return;
+        }
+        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '').replace(/^0/, '212');
+        window.open(`https://wa.me/${cleanNumber}`, '_blank');
+    }
+
+    function callNumber(phoneNumber) {
+        if (!phoneNumber) {
+            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
+            return;
+        }
+        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '');
+        window.location.href = 'tel:' + cleanNumber;
+    }
+
+    // ============================================================
+    // ⭐ نظام التقييم
+    // ============================================================
+    function calculateAverageRating(targetUsername) {
+        const userReviews = allReviews.filter(r => r.target === targetUsername);
+        if (userReviews.length === 0) return 0;
+        const total = userReviews.reduce((sum, r) => sum + r.rating, 0);
+        return Math.round((total / userReviews.length) * 10) / 10;
+    }
+
+    function getRatingCount(targetUsername) {
+        return allReviews.filter(r => r.target === targetUsername).length;
+    }
+
+    function renderStars(rating) {
+        const fullStars = Math.floor(rating);
+        const emptyStars = 5 - fullStars;
+
+        let html = '<div class="rating-display">';
+        for (let i = 0; i < fullStars; i++) {
+            html += '<span class="star">⭐</span>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            html += '<span class="star empty">☆</span>';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    async function rateUser(targetUsername, rating) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        if (currentUserData.username === targetUsername) {
+            showToast('❌ لا يمكنك تقييم نفسك', 'error');
+            return;
+        }
+
+        try {
+            const q = query(collection(db, 'reviews'), 
+                where('from', '==', currentUserData.username), 
+                where('target', '==', targetUsername)
+            );
+            const snapshot = await getDocs(q);
+
+            if (!snapshot.empty) {
+                const docRef = snapshot.docs[0].ref;
+                await updateDoc(docRef, {
+                    rating: rating,
+                    date: new Date().toISOString()
+                });
+            } else {
+                await addDoc(collection(db, 'reviews'), {
+                    from: currentUserData.username,
+                    target: targetUsername,
+                    rating: rating,
+                    date: new Date().toISOString()
+                });
+            }
+
+            showToast(`⭐ تم تقييم المستخدم بـ ${rating} نجوم!`, 'success');
+            await loadAllData();
+            if (currentUserData.role === 'owner') {
+                searchWorkers();
+            } else {
+                searchOwners();
+            }
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 💬 نظام الرسائل
+    // ============================================================
+    async function sendMessage(to, message) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        if (!message || message.trim() === '') {
+            showToast('❌ اكتب رسالتك', 'error');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'messages'), {
+                from: currentUserData.username,
+                to: to,
+                message: message.trim(),
+                read: false,
+                createdAt: new Date().toISOString()
+            });
+
+            showToast('✅ تم إرسال الرسالة بنجاح!', 'success');
+            closeMessageModal();
+            await loadAllData();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    function getMessagesForUser(username) {
+        return allMessages.filter(m => m.to === username || m.from === username);
+    }
+
+    function getUnreadCount(username) {
+        return allMessages.filter(m => m.to === username && !m.read).length;
+    }
+
+    // ============================================================
+    // 📋 الملف الشخصي
+    // ============================================================
+    function viewMyProfile() {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        viewProfile(currentUserData.username);
+    }
+
+    function viewProfile(username) {
+        const user = allUsers.find(u => u.username === username);
+        if (!user) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        const overlay = document.getElementById('profileModal');
+        const title = document.getElementById('profileModalTitle');
+        const body = document.getElementById('profileModalBody');
+
+        const isOwner = user.role === 'owner';
+        const avgRating = calculateAverageRating(user.username);
+        const ratingCount = getRatingCount(user.username);
+        const unread = getUnreadCount(user.username);
+
+        title.textContent = '📋 الملف الشخصي';
+
+        body.innerHTML = `
+            <div class="profile-card">
+                <span class="avatar">${isOwner ? '🏪' : '🎯'}</span>
+                <div class="name">${user.displayName || user.username}</div>
+                <div>
+                    <span class="role-tag">${isOwner ? '🏪 صاحب منشأة' : '🎯 مهني'}</span>
+                    ${user.sector ? `<span class="sector-tag">${user.sectorIcon || ''} ${user.sector.replace(/_/g, ' ')}</span>` : ''}
+                </div>
+                <div class="info-row">
+                    <span>📍 ${user.city || 'غير محدد'}</span>
+                    <span>📱 ${user.phone || 'غير متوفر'}</span>
+                    ${unread > 0 ? `<span style="color:#6c5ce7;">💬 ${unread} رسالة جديدة</span>` : ''}
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px;">
+                    ${renderStars(avgRating)}
+                    <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                </div>
+                ${user.bio ? `
+                    <div class="bio">
+                        📝 <strong>${isOwner ? 'وصف المحل:' : 'وصف المهني:'}</strong><br>
+                        ${user.bio}
+                    </div>
+                ` : `
+                    <div class="bio" style="color:#b0957e;">
+                        ${isOwner ? '📝 لم يضف وصفاً للمحل بعد' : '📝 لم يضف وصفاً مهنياً بعد'}
+                    </div>
+                `}
+            </div>
+            <div class="btn-row">
+                ${currentUser && currentUserData.username !== username ? `
+                    <button class="btn btn-message btn-small" onclick="openMessageModal('${username}')">💬 إرسال رسالة</button>
+                ` : ''}
+                ${user.phone ? `
+                    <button class="btn btn-whatsapp btn-small" onclick="openWhatsApp('${user.phone}')">💬 واتساب</button>
+                    <button class="btn btn-call btn-small" onclick="callNumber('${user.phone}')">📞 اتصال</button>
+                ` : ''}
+                ${currentUser && currentUserData.username !== username ? `
+                    <button class="btn btn-secondary btn-small" onclick="closeProfileModal(); openRatingModal('${username}')">⭐ تقييم</button>
+                ` : ''}
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ============================================================
+    // 💬 نافذة إرسال رسالة
+    // ============================================================
+    function openMessageModal(toUsername) {
+        const overlay = document.getElementById('messageModal');
+        const title = document.getElementById('messageModalTitle');
+        const body = document.getElementById('messageModalBody');
+
+        const targetUser = allUsers.find(u => u.username === toUsername);
+        if (!targetUser) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        title.textContent = `💬 إرسال رسالة إلى ${targetUser.displayName || targetUser.username}`;
+        body.innerHTML = `
+            <div style="text-align:center; margin-bottom:10px;">
+                <span style="font-size:40px;">${targetUser.role === 'owner' ? '🏪' : '🎯'}</span>
+                <div style="font-weight:700; color:#3d2415;">${targetUser.displayName || targetUser.username}</div>
+                <div style="font-size:13px; color:#8b6b51;">📍 ${targetUser.city || 'غير محدد'}</div>
+            </div>
+            <div class="message-box">
+                <textarea id="messageText" placeholder="اكتب رسالتك هنا..."></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-message btn-small" onclick="sendMessage('${toUsername}', document.getElementById('messageText').value)">📤 إرسال</button>
+                    <button class="btn btn-secondary btn-small" onclick="closeMessageModal()">إلغاء</button>
+                </div>
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('messageText').focus(), 200);
+    }
+
+    function closeMessageModal() {
+        document.getElementById('messageModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ============================================================
+    // 🎯 النافذة المنبثقة العامة
+    // ============================================================
+    function openModal(type) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        if (type === 'job') {
+            title.textContent = '📤 نشر إعلان جديد';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>🏷️ قطاع المنشأة <span style="color:#b8652e;">*</span></label>
+                    <select id="modalJobSector">
+                        <option value="مخبز">🥖 مخبز</option>
+                        <option value="مقهى">☕ مقهى</option>
+                        <option value="مطعم">🍽️ مطعم</option>
+                        <option value="سناك">🍔 سناك</option>
+                        <option value="محلبات">🍦 محلبات</option>
+                        <option value="مطعم_وجبات_سريعة">🍟 مطعم وجبات سريعة</option>
+                        <option value="مطعم_عائلي">👨‍👩‍👦 مطعم عائلي</option>
+                        <option value="مطعم_فاخر">✨ مطعم فاخر</option>
+                        <option value="أخرى">📌 أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📋 عنوان الإعلان <span style="color:#b8652e;">*</span></label>
+                    <input type="text" id="modalJobTitle" placeholder="مطلوب طباخ">
+                </div>
+                <div class="form-group">
+                    <label>📝 التفاصيل <span style="color:#b8652e;">*</span></label>
+                    <textarea id="modalJobDesc" placeholder="المهام، المهارات، الخبرة المطلوبة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📍 المدينة <span style="color:#b8652e;">*</span></label>
+                    <input type="text" id="modalJobCity" placeholder="الدار البيضاء">
+                </div>
+                <div class="form-group">
+                    <label>📱 رقم الهاتف <span style="color:#b8652e;">*</span></label>
+                    <input type="tel" id="modalJobPhone" placeholder="0612345678">
+                    <div class="field-hint">سيظهر للمهنيين للتواصل عبر واتساب أو الاتصال</div>
+                </div>
+                <div class="form-group">
+                    <label>🔴 حالة الطلب</label>
+                    <select id="modalJobUrgency">
+                        <option value="normal">🟡 عادي</option>
+                        <option value="urgent">🔴 عاجل (محتاج فوراً)</option>
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="publishJob()">📤 نشر</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                </div>
+            `;
+        } else if (type === 'profile') {
+            title.textContent = '📋 ملفي المهني';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>👤 التخصص</label>
+                    <select id="modalWorkerSpecialty">
+                        <option value="طباخ">طباخ</option>
+                        <option value="خباز">خباز</option>
+                        <option value="عجان">عجان</option>
+                        <option value="مساعد طباخ">مساعد طباخ</option>
+                        <option value="بارستا">بارستا (محضر قهوة)</option>
+                        <option value="نادل">نادل</option>
+                        <option value="محضر سناكس">محضر سناكس</option>
+                        <option value="محضر حلويات">محضر حلويات</option>
+                        <option value="جميع المهارات">جميع المهارات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📝 نبذة عني</label>
+                    <textarea id="modalWorkerBio" placeholder="خبراتي، المهارات، سنوات الخبرة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>🟢 حالة البحث</label>
+                    <select id="modalWorkerStatus">
+                        <option value="available">🟢 متفرغ للعمل</option>
+                        <option value="not-available">🔴 مشغول حالياً</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📱 رقم الهاتف</label>
+                    <input type="tel" id="modalWorkerPhone" placeholder="0612345678">
+                    <div class="field-hint">سيظهر لأصحاب المنشآت للتواصل معك</div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="updateProfile()">💾 حفظ</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                </div>
+            `;
+            if (currentUserData) {
+                setTimeout(() => {
+                    document.getElementById('modalWorkerSpecialty').value = currentUserData.specialty || 'طباخ';
+                    document.getElementById('modalWorkerBio').value = currentUserData.bio || '';
+                    document.getElementById('modalWorkerStatus').value = currentUserData.workerStatus || 'available';
+                    document.getElementById('modalWorkerPhone').value = currentUserData.phone || '';
+                }, 50);
+            }
+        }
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ============================================================
+    // 🎯 اختيار الدور في التسجيل
+    // ============================================================
+    function selectRegRole(role) {
+        document.querySelectorAll('#registerScreen .role-card').forEach(el => el.classList.remove('active'));
+        if (role === 'worker') {
+            document.getElementById('regRoleWorker').classList.add('active');
+        } else {
+            document.getElementById('regRoleOwner').classList.add('active');
+        }
+    }
+
+    function getSelectedRegRole() {
+        if (document.getElementById('regRoleWorker').classList.contains('active')) return 'worker';
+        return 'owner';
+    }
+
+    // ============================================================
+    // 🔐 المصادقة مع Firebase
+    // ============================================================
+    async function register() {
+        const username = document.getElementById('regUser').value.trim();
+        const password = document.getElementById('regPass').value;
+        const city = document.getElementById('regCity').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const bio = document.getElementById('regBio').value.trim();
+        const role = getSelectedRegRole();
+        const sector = document.getElementById('regSector').value;
+
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        let hasError = false;
+        if (!username) { document.getElementById('regUser').classList.add('input-error'); hasError = true; }
+        if (!password || password.length < 6) { document.getElementById('regPass').classList.add('input-error'); hasError = true; }
+        if (!city) { document.getElementById('regCity').classList.add('input-error'); hasError = true; }
+        if (!phone) { document.getElementById('regPhone').classList.add('input-error'); hasError = true; }
+        if (!sector) { document.getElementById('regSector').classList.add('input-error'); hasError = true; }
+
+        if (hasError) {
+            showToast('❌ الرجاء ملء جميع الحقول المطلوبة', 'error');
+            return;
+        }
+
+        try {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('username', '==', username));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+                showToast('❌ هذا الاسم موجود مسبقاً', 'error');
+                document.getElementById('regUser').classList.add('input-error');
+                return;
+            }
+
+            const userCredential = await createUserWithEmailAndPassword(auth, username + '@khdma.app', password);
+            const user = userCredential.user;
+
+            const sectorIcons = {
+                'مخبز': '🥖',
+                'مقهى': '☕',
+                'مطعم': '🍽️',
+                'سناك': '🍔',
+                'محلبات': '🍦',
+                'مطعم_وجبات_سريعة': '🍟',
+                'مطعم_عائلي': '👨‍👩‍👦',
+                'مطعم_فاخر': '✨',
+                'أخرى': '📌'
+            };
+
+            await setDoc(doc(db, 'users', user.uid), {
+                username: username,
+                email: username + '@khdma.app',
+                city: city,
+                phone: phone,
+                bio: bio || (role === 'worker' ? 'مهني محترف في مجال الأكل والشرب' : 'منشأة متخصصة في الأكل والشرب'),
+                role: role,
+                sector: sector,
+                sectorIcon: sectorIcons[sector] || '🏪',
+                displayName: username,
+                specialty: role === 'worker' ? 'طباخ' : '',
+                workerStatus: role === 'worker' ? 'available' : '',
+                location: null,
+                createdAt: new Date().toISOString()
+            });
+
+            showToast('🎉 تم التسجيل بنجاح! مرحباً ' + username, 'success');
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    async function login() {
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
+
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        if (!username) {
+            document.getElementById('loginUser').classList.add('input-error');
+            showToast('❌ أدخل اسم المستخدم', 'error');
+            return;
+        }
+        if (!password) {
+            document.getElementById('loginPass').classList.add('input-error');
+            showToast('❌ أدخل كلمة المرور', 'error');
+            return;
+        }
+
+        try {
+            await signInWithEmailAndPassword(auth, username + '@khdma.app', password);
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                showToast('❌ هذا المستخدم غير موجود', 'error');
+                document.getElementById('loginUser').classList.add('input-error');
+            } else if (error.code === 'auth/wrong-password') {
+                showToast('❌ كلمة المرور غير صحيحة', 'error');
+                document.getElementById('loginPass').classList.add('input-error');
+            } else {
+                showToast('❌ حدث خطأ: ' + error.message, 'error');
+            }
+        }
+    }
+
+    async function logout() {
+        try {
+            await signOut(auth);
+            showToast('👋 تم تسجيل الخروج', '');
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 🔄 تحميل جميع البيانات من Firestore
+    // ============================================================
+    async function loadAllData() {
+        try {
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            allUsers = [];
+            usersSnapshot.forEach(doc => {
+                allUsers.push({ id: doc.id, ...doc.data() });
+            });
+
+            const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+            allJobs = [];
+            jobsSnapshot.forEach(doc => {
+                allJobs.push({ id: doc.id, ...doc.data() });
+            });
+
+            const appsSnapshot = await getDocs(collection(db, 'applications'));
+            allApplications = [];
+            appsSnapshot.forEach(doc => {
+                allApplications.push({ id: doc.id, ...doc.data() });
+            });
+
+            const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
+            allReviews = [];
+            reviewsSnapshot.forEach(doc => {
+                allReviews.push({ id: doc.id, ...doc.data() });
+            });
+
+            const messagesSnapshot = await getDocs(collection(db, 'messages'));
+            allMessages = [];
+            messagesSnapshot.forEach(doc => {
+                allMessages.push({ id: doc.id, ...doc.data() });
+            });
+
+            console.log('📦 تم تحميل البيانات:', {
+                users: allUsers.length,
+                jobs: allJobs.length,
+                applications: allApplications.length,
+                reviews: allReviews.length,
+                messages: allMessages.length
+            });
+
+        } catch (error) {
+            console.error('❌ خطأ في تحميل البيانات:', error);
+        }
+    }
+
+    // ============================================================
+    // 🔄 تحديث الواجهة حسب المستخدم
+    // ============================================================
+    function updateUI(userData) {
+        const badge = document.getElementById('userBadge');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (userData) {
+            badge.style.display = 'inline-flex';
+            badge.textContent = '👋 ' + (userData.displayName || userData.username);
+            logoutBtn.style.display = 'inline-block';
+            showScreen('mainScreen');
+            showLoading(false);
+
+            if (userData.role === 'owner') {
+                document.getElementById('ownerDashboard').classList.add('active');
+                document.getElementById('workerDashboard').classList.remove('active');
+                loadMyJobs();
+                loadReceivedApplications();
+                searchWorkers();
+            } else {
+                document.getElementById('workerDashboard').classList.add('active');
+                document.getElementById('ownerDashboard').classList.remove('active');
+                searchJobsWorker();
+                loadMyApplications();
+                searchOwners();
+            }
+        } else {
+            badge.style.display = 'none';
+            logoutBtn.style.display = 'none';
+            showScreen('loginScreen');
+            showLoading(false);
+        }
+    }
+
+    // ============================================================
+    // 🔍 دوال الفلترة
+    // ============================================================
+    function filterOwnerWorkers(sector) {
+        ownerSectorFilter = sector;
+        document.querySelectorAll('#ownerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#ownerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchWorkers();
+    }
+
+    function filterWorkerJobs(sector) {
+        workerSectorFilter = sector;
+        document.querySelectorAll('#workerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#workerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchJobsWorker();
+    }
+
+    function filterWorkerOwners(sector) {
+        workerOwnerSectorFilter = sector;
+        document.querySelectorAll('#workerOwnerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#workerOwnerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchOwners();
+    }
+
+    // ============================================================
+    // 🔍 البحث عن مهنيين (لصاحب المنشأة)
+    // ============================================================
+    function searchWorkers() {
+        const queryText = document.getElementById('ownerSearchWorker').value.trim().toLowerCase();
+        const div = document.getElementById('workersList');
+
+        let workers = allUsers.filter(u => u.role === 'worker');
+
+        if (ownerSectorFilter !== 'all') {
+            workers = workers.filter(u => u.sector === ownerSectorFilter);
+        }
+
+        if (queryText) {
+            workers = workers.filter(u =>
+                u.displayName.toLowerCase().includes(queryText) ||
+                u.username.toLowerCase().includes(queryText) ||
+                (u.city && u.city.toLowerCase().includes(queryText)) ||
+                (u.specialty && u.specialty.toLowerCase().includes(queryText)) ||
+                (u.bio && u.bio.toLowerCase().includes(queryText))
+            );
+        }
+
+        if (workers.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${queryText ? 'لا يوجد مهنيين مطابقين ل "' + queryText + '"' : 'لا يوجد مهنيين في هذا القطاع'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        workers.forEach(worker => {
+            const isAvailable = worker.workerStatus !== 'not-available';
+            const avgRating = calculateAverageRating(worker.username);
+            const ratingCount = getRatingCount(worker.username);
+
+            html += `
+                <div class="card card-worker" onclick="viewProfile('${worker.username}')" style="cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h4>${worker.displayName || worker.username}</h4>
+                        <span class="status-badge ${isAvailable ? 'available' : 'normal'}">
+                            ${isAvailable ? '🟢 متفرغ' : '🔴 مشغول'}
+                        </span>
+                    </div>
+                    <p>${worker.bio || 'مهني محترف في مجال الأكل والشرب'}</p>
+                    <div class="meta">
+                        <span>📍 ${worker.city || 'غير محدد'}</span>
+                        <span class="badge">${worker.specialty || 'مهني'}</span>
+                        <span class="sector-tag">${worker.sectorIcon || '🏪'} ${worker.sector || 'عام'}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                        ${renderStars(avgRating)}
+                        <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-message-small btn-small" onclick="event.stopPropagation(); openMessageModal('${worker.username}')">💬 رسالة</button>
+                        ${worker.phone ? `
+                            <button class="btn btn-whatsapp btn-small" onclick="event.stopPropagation(); openWhatsApp('${worker.phone}')">💬 واتساب</button>
+                            <button class="btn btn-call btn-small" onclick="event.stopPropagation(); callNumber('${worker.phone}')">📞 اتصال</button>
+                        ` : ''}
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); openRatingModal('${worker.username}')">⭐ تقييم</button>
+                    </div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // 🔍 البحث عن منشآت (للمهني)
+    // ============================================================
+    function searchOwners() {
+        const queryText = document.getElementById('workerSearchOwner').value.trim().toLowerCase();
+        const div = document.getElementById('ownersList');
+
+        let owners = allUsers.filter(u => u.role === 'owner');
+
+        if (workerOwnerSectorFilter !== 'all') {
+            owners = owners.filter(u => u.sector === workerOwnerSectorFilter);
+        }
+
+        if (queryText) {
+            owners = owners.filter(u =>
+                u.displayName.toLowerCase().includes(queryText) ||
+                u.username.toLowerCase().includes(queryText) ||
+                (u.city && u.city.toLowerCase().includes(queryText)) ||
+                (u.sector && u.sector.toLowerCase().includes(queryText)) ||
+                (u.bio && u.bio.toLowerCase().includes(queryText))
+            );
+        }
+
+        if (owners.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${queryText ? 'لا توجد منشآت مطابقة ل "' + queryText + '"' : 'لا توجد منشآت في هذا القطاع'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        owners.forEach(owner => {
+            const ownerJobs = allJobs.filter(j => j.ownerId === owner.username && j.status === 'مفتوح');
+            const hasUrgent = ownerJobs.some(j => j.urgency === 'urgent');
+            const avgRating = calculateAverageRating(owner.username);
+            const ratingCount = getRatingCount(owner.username);
+            const sectorDisplay = owner.sector ? owner.sector.replace(/_/g, ' ') : '';
+
+            html += `
+                <div class="card card-owner" onclick="viewProfile('${owner.username}')" style="cursor:pointer;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h4>${owner.displayName || owner.username}</h4>
+                        ${hasUrgent ?
+                            '<span class="status-badge urgent">🔴 محتاج مهنيين</span>' :
+                            ownerJobs.length > 0 ?
+                            '<span class="status-badge normal">🟡 يبحث عن مهنيين</span>' :
+                            '<span class="status-badge normal">⚪ لا يبحث حالياً</span>'
+                        }
+                    </div>
+                    <div class="meta">
+                        <span class="sector-tag">${owner.sectorIcon || '🏪'} ${sectorDisplay || 'منشأة'}</span>
+                    </div>
+                    <p>📍 ${owner.city || 'غير محدد'}</p>
+                    <div class="meta">
+                        ${ownerJobs.length > 0 ? `<span class="badge">📋 ${ownerJobs.length} إعلان</span>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                        ${renderStars(avgRating)}
+                        <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-message-small btn-small" onclick="event.stopPropagation(); openMessageModal('${owner.username}')">💬 رسالة</button>
+                        ${owner.phone ? `
+                            <button class="btn btn-whatsapp btn-small" onclick="event.stopPropagation(); openWhatsApp('${owner.phone}')">💬 واتساب</button>
+                            <button class="btn btn-call btn-small" onclick="event.stopPropagation(); callNumber('${owner.phone}')">📞 اتصال</button>
+                        ` : ''}
+                        ${ownerJobs.length > 0 ?
+                            `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); viewOwnerJobs('${owner.username}')">👀 عرض الوظائف</button>` :
+                            ''
+                        }
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); openRatingModal('${owner.username}')">⭐ تقييم</button>
+                    </div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // ⭐ نافذة التقييم المنبثقة
+    // ============================================================
+    function openRatingModal(targetUsername) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        const targetUser = allUsers.find(u => u.username === targetUsername);
+        if (!targetUser) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        const existingReview = allReviews.find(r =>
+            r.from === currentUserData?.username && r.target === targetUsername
+        );
+        const currentRating = existingReview ? existingReview.rating : 0;
+
+        title.textContent = `⭐ تقييم ${targetUser.displayName || targetUser.username}`;
+        body.innerHTML = `
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:48px; margin-bottom:8px;">${targetUser.role === 'owner' ? (targetUser.sectorIcon || '🏪') : '🎯'}</div>
+                <h4 style="color:#4a2c1b;">${targetUser.displayName || targetUser.username}</h4>
+                <p style="color:#8b6b51; font-size:13px;">📍 ${targetUser.city || 'غير محدد'}</p>
+                ${targetUser.role === 'owner' && targetUser.sector ? `<p style="color:#8b6b51; font-size:13px;">🏷️ ${targetUser.sector.replace(/_/g, ' ')}</p>` : ''}
+            </div>
+            <div style="text-align:center; margin-bottom:16px;">
+                <label style="font-weight:600; color:#4a2c1b; display:block; margin-bottom:8px;">اختر عدد النجوم</label>
+                <div class="rating" style="justify-content:center; font-size:32px;" id="ratingStars">
+                    ${[1,2,3,4,5].map(i => `
+                        <span class="star ${i <= currentRating ? 'active' : ''}" 
+                              onclick="setRating(${i})" 
+                              onmouseenter="hoverRating(${i})" 
+                              onmouseleave="resetRating(${currentRating})"
+                              style="cursor:pointer; transition:0.2s; font-size:32px; color:${i <= currentRating ? '#f5a623' : '#ddd'};">★</span>
+                    `).join('')}
+                </div>
+                <input type="hidden" id="selectedRating" value="${currentRating}">
+                <div style="font-size:13px; color:#8b6b51; margin-top:4px;" id="ratingLabel">
+                    ${currentRating > 0 ? getRatingLabel(currentRating) : 'اختر تقييمك'}
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="submitRating('${targetUsername}')">💾 تأكيد التقييم</button>
+                <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    let hoveredRating = 0;
+
+    function setRating(val) {
+        document.getElementById('selectedRating').value = val;
+        document.getElementById('ratingLabel').textContent = getRatingLabel(val);
+        updateStars(val);
+    }
+
+    function hoverRating(val) {
+        hoveredRating = val;
+        updateStars(val);
+    }
+
+    function resetRating(current) {
+        const val = parseInt(document.getElementById('selectedRating').value) || current || 0;
+        updateStars(val);
+    }
+
+    function updateStars(val) {
+        document.querySelectorAll('#ratingStars .star').forEach((star, index) => {
+            const isActive = index < val;
+            star.style.color = isActive ? '#f5a623' : '#ddd';
+            star.className = 'star' + (isActive ? ' active' : '');
+        });
+    }
+
+    function getRatingLabel(val) {
+        const labels = {
+            1: '🌟 سيء جداً',
+            2: '🌟 سيء',
+            3: '🌟 متوسط',
+            4: '🌟 جيد',
+            5: '🌟 ممتاز'
+        };
+        return labels[val] || 'اختر تقييمك';
+    }
+
+    function submitRating(targetUsername) {
+        const rating = parseInt(document.getElementById('selectedRating').value);
+        if (rating === 0) {
+            showToast('❌ الرجاء اختيار عدد النجوم', 'error');
+            return;
+        }
+        rateUser(targetUsername, rating);
+        closeModal();
+    }
+
+    // ============================================================
+    // 📋 عرض الوظائف (للمهني)
+    // ============================================================
+    function viewOwnerJobs(username) {
+        const ownerJobs = allJobs.filter(j => j.ownerId === username && j.status === 'مفتوح');
+
+        if (ownerJobs.length === 0) {
+            showToast('لا توجد وظائف متاحة حالياً', '');
+            return;
+        }
+
+        let msg = '📋 الوظائف المتاحة:\n\n';
+        ownerJobs.forEach((j, i) => {
+            msg += `${i+1}. ${j.title}\n`;
+            msg += `   📍 ${j.city}\n`;
+            msg += `   ${j.description}\n`;
+            if (j.urgency === 'urgent') msg += '   🔴 عاجل!\n';
+            msg += '\n';
+        });
+        msg += '\n📩 للتقدم، اذهب إلى تبويب "وظائف"';
+        alert(msg);
+    }
+
+    // ============================================================
+    // 📋 وظائف صاحب المنشأة
+    // ============================================================
+    async function publishJob() {
+        if (!currentUser || currentUserData.role !== 'owner') {
+            showToast('❌ فقط أصحاب المنشآت يمكنهم نشر إعلانات', 'error');
+            return;
+        }
+
+        const sector = document.getElementById('modalJobSector').value;
+        const title = document.getElementById('modalJobTitle').value.trim();
+        const desc = document.getElementById('modalJobDesc').value.trim();
+        const city = document.getElementById('modalJobCity').value.trim();
+        const phone = document.getElementById('modalJobPhone').value.trim();
+        const urgency = document.getElementById('modalJobUrgency').value;
+
+        document.querySelectorAll('#modalBody .input-error').forEach(el => el.classList.remove('input-error'));
+
+        let hasError = false;
+        if (!sector) { document.getElementById('modalJobSector').classList.add('input-error'); hasError = true; }
+        if (!title) { document.getElementById('modalJobTitle').classList.add('input-error'); hasError = true; }
+        if (!desc) { document.getElementById('modalJobDesc').classList.add('input-error'); hasError = true; }
+        if (!city) { document.getElementById('modalJobCity').classList.add('input-error'); hasError = true; }
+        if (!phone) { document.getElementById('modalJobPhone').classList.add('input-error'); hasError = true; }
+
+        if (hasError) {
+            showToast('❌ املأ جميع الحقول المطلوبة', 'error');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'jobs'), {
+                ownerId: currentUserData.username,
+                ownerName: currentUserData.displayName || currentUserData.username,
+                ownerPhone: phone,
+                sector: sector,
+                sectorIcon: document.querySelector('#modalJobSector option:checked').text.split(' ')[0] || '🏪',
+                title: title,
+                description: desc,
+                city: city,
+                urgency: urgency,
+                status: 'مفتوح',
+                createdAt: new Date().toISOString()
+            });
+
+            closeModal();
+            showToast('📢 تم نشر الإعلان بنجاح!', 'success');
+            await loadAllData();
+            loadMyJobs();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    function loadMyJobs() {
+        const div = document.getElementById('myJobsList');
+        const myJobs = allJobs.filter(j => j.ownerId === currentUserData.username);
+
+        if (myJobs.length === 0) {
+            div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>`;
+            return;
+        }
+
+        let html = '';
+        myJobs.forEach(job => {
+            const applicants = allApplications.filter(a => a.jobId === job.id);
+            html += `
+                <div class="card card-owner">
+                    <div class="meta">
+                        <span class="sector-tag">${job.sectorIcon || '🏪'} ${job.sector || 'منشأة'}</span>
+                    </div>
+                    <h4>${job.title}</h4>
+                    <p>${job.description}</p>
+                    <div class="meta">
+                        <span>📍 ${job.city}</span>
+                        ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
+                        <span class="badge ${job.status === 'مفتوح' ? 'badge-green' : 'badge-red'}">${job.status}</span>
+                        <span class="badge">👥 ${applicants.length}</span>
+                    </div>
+                    ${job.status === 'مفتوح' ?
+                        `<button class="btn btn-danger btn-small" style="margin-top:8px; padding:6px 14px; font-size:12px;" onclick="closeJob('${job.id}')">🔒 إغلاق</button>` :
+                        ''
+                    }
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    async function closeJob(jobId) {
+        try {
+            const jobRef = doc(db, 'jobs', jobId);
+            await updateDoc(jobRef, { status: 'مغلق' });
+            showToast('🔒 تم إغلاق الإعلان', '');
+            await loadAllData();
+            loadMyJobs();
+            loadReceivedApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 📩 طلبات وصلت لصاحب المنشأة
+    // ============================================================
+    function loadReceivedApplications() {
+        const div = document.getElementById('receivedAppsList');
+        const myJobIds = allJobs.filter(j => j.ownerId === currentUserData.username).map(j => j.id);
+        const received = allApplications.filter(a => myJobIds.includes(a.jobId));
+
+        if (received.length === 0) {
+            div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>`;
+            return;
+        }
+
+        let html = '';
+        received.forEach(app => {
+            const job = allJobs.find(j => j.id === app.jobId);
+            const isAccepted = app.status === 'مقبول';
+            const worker = allUsers.find(u => u.username === app.workerId);
+            html += `
+                <div class="card ${isAccepted ? 'card-accepted' : 'card-owner'}">
+                    <h4>${app.workerName}</h4>
+                    <p>📋 تقدم للوظيفة: ${job ? job.title : 'غير متاحة'}</p>
+                    <div class="meta">
+                        <span>📍 ${job ? job.city : ''}</span>
+                        <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
+                        <span>📅 ${new Date(app.appliedAt).toLocaleDateString('ar-MA')}</span>
+                    </div>
+                    ${isAccepted && job && worker ? `
+                        <div class="contact-info">
+                            <div>
+                                <div class="owner-name">🎯 ${worker.displayName || worker.username}</div>
+                                <div class="owner-phone">📱 ${worker.phone || 'رقم غير متوفر'}</div>
+                            </div>
+                            ${worker.phone ? `
+                                <div class="contact-buttons">
+                                    <button class="btn-whatsapp-small" onclick="openWhatsApp('${worker.phone}')">
+                                        💬 واتساب
+                                    </button>
+                                    <button class="btn-call-small" onclick="callNumber('${worker.phone}')">
+                                        📞 اتصال
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn btn-success btn-small" style="padding:6px 14px; font-size:12px;" onclick="acceptApplication('${app.id}')">✅ قبول</button>
+                            <button class="btn btn-danger btn-small" style="padding:6px 14px; font-size:12px;" onclick="rejectApplication('${app.id}')">❌ رفض</button>
+                        </div>
+                    `}
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    async function acceptApplication(appId) {
+        try {
+            const appRef = doc(db, 'applications', appId);
+            await updateDoc(appRef, { status: 'مقبول' });
+            showToast('✅ تم قبول الطلب!', 'success');
+            await loadAllData();
+            loadReceivedApplications();
+            loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    async function rejectApplication(appId) {
+        try {
+            const appRef = doc(db, 'applications', appId);
+            await updateDoc(appRef, { status: 'مرفوض' });
+            showToast('❌ تم رفض الطلب', '');
+            await loadAllData();
+            loadReceivedApplications();
+            loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 🔍 وظائف المهني مع فلترة القطاع
+    // ============================================================
+    function searchJobsWorker() {
+        const city = document.getElementById('searchCityWorker').value.trim();
+        const div = document.getElementById('jobsResults');
+
+        let filtered = allJobs.filter(j => j.status === 'مفتوح');
+
+        if (workerSectorFilter !== 'all') {
+            filtered = filtered.filter(j => j.sector === workerSectorFilter);
+        }
+
+        if (city) {
+            filtered = filtered.filter(j => j.city.toLowerCase().includes(city.toLowerCase()));
+        }
+
+        if (filtered.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${city ? 'لا توجد وظائف في "' + city + '"' : 'لا توجد وظائف في هذا القطاع'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(job => {
+            const applied = allApplications.some(a =>
+                a.jobId === job.id && a.workerId === currentUserData?.username
+            );
+
+            const applicantsCount = allApplications.filter(a => a.jobId === job.id).length;
+
+            const owner = allUsers.find(u => u.username === job.ownerId);
+            const ownerAvgRating = owner ? calculateAverageRating(owner.username) : 0;
+            const ownerRatingCount = owner ? getRatingCount(owner.username) : 0;
+
+            html += `
+                <div class="card card-worker" onclick="viewProfile('${job.ownerId}')" style="cursor:pointer;">
+                    <div class="meta">
+                        <span class="sector-tag">${job.sectorIcon || '🏪'} ${job.sector || 'منشأة'}</span>
+                    </div>
+                    <h4>${job.title}</h4>
+                    <p>${job.description}</p>
+                    <div class="meta">
+                        <span>📍 ${job.city}</span>
+                        ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
+                        <span class="badge">👥 ${applicantsCount}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:13px; color:#8b6b51;">
+                        🏪 ${job.ownerName}
+                        ${renderStars(ownerAvgRating)}
+                        <span>(${ownerRatingCount})</span>
+                    </div>
+                    ${applied ?
+                        '<span class="badge badge-green">✅ تم التقديم</span>' :
+                        `<button class="btn btn-success btn-small" style="margin-top:8px;" onclick="event.stopPropagation(); applyForJob('${job.id}')">📩 تقدم للوظيفة</button>`
+                    }
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    async function applyForJob(jobId) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+
+        if (currentUserData.role !== 'worker') {
+            showToast('❌ فقط المهنيين يمكنهم التقدم للوظائف', 'error');
+            return;
+        }
+
+        if (allApplications.some(a => a.jobId === jobId && a.workerId === currentUserData.username)) {
+            showToast('⚠️ لقد تقدمت لهذه الوظيفة مسبقاً', 'error');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'applications'), {
+                jobId: jobId,
+                workerId: currentUserData.username,
+                workerName: currentUserData.displayName || currentUserData.username,
+                status: 'قيد المراجعة',
+                appliedAt: new Date().toISOString()
+            });
+
+            showToast('✅ تم التقديم بنجاح!', 'success');
+            await loadAllData();
+            searchJobsWorker();
+            loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 📩 طلباتي (للمهني)
+    // ============================================================
+    function loadMyApplications() {
+        const div = document.getElementById('myApplicationsList');
+
+        const myApps = allApplications.filter(a => a.workerId === currentUserData.username);
+
+        if (myApps.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">📭</span>
+                    لم تتقدم لأي وظيفة بعد
+                    <br><small style="color:#b0957e;">ابحث عن وظائف في تبويب "وظائف"</small>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        myApps.forEach(app => {
+            const job = allJobs.find(j => j.id === app.jobId);
+            const isAccepted = app.status === 'مقبول';
+            html += `
+                <div class="card ${isAccepted ? 'card-accepted' : 'card-worker'}">
+                    <h4>${job ? job.title : 'وظيفة غير متاحة'}</h4>
+                    <p>${job ? job.description : ''}</p>
+                    <div class="meta">
+                        <span>📍 ${job ? job.city : ''}</span>
+                        <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
+                    </div>
+                    <div style="margin-top:6px; font-size:12px; color:#8b6b51;">
+                        📅 تم التقديم: ${new Date(app.appliedAt).toLocaleDateString('ar-MA')}
+                    </div>
+                    ${isAccepted && job ? `
+                        <div class="contact-info">
+                            <div>
+                                <div class="owner-name">🏪 ${job.ownerName || 'صاحب المنشأة'}</div>
+                                <div class="owner-phone">📱 ${job.ownerPhone || 'رقم غير متوفر'}</div>
+                            </div>
+                            ${job.ownerPhone ? `
+                                <div class="contact-buttons">
+                                    <button class="btn-whatsapp-small" onclick="openWhatsApp('${job.ownerPhone}')">
+                                        💬 واتساب
+                                    </button>
+                                    <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
+                                        📞 اتصال
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // 📝 تحديث ملف المهني
+    // ============================================================
+    async function updateProfile() {
+        if (!currentUser || currentUserData.role !== 'worker') {
+            showToast('❌ فقط المهنيين يمكنهم تحديث ملفهم', 'error');
+            return;
+        }
+
+        const specialty = document.getElementById('modalWorkerSpecialty').value;
+        const bio = document.getElementById('modalWorkerBio').value.trim();
+        const status = document.getElementById('modalWorkerStatus').value;
+        const phone = document.getElementById('modalWorkerPhone').value.trim();
+
+        try {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userRef, {
+                specialty: specialty,
+                bio: bio || 'مهني محترف في مجال الأكل والشرب',
+                workerStatus: status,
+                phone: phone || currentUserData.phone
+            });
+
+            showToast('✅ تم تحديث ملفك المهني بنجاح!', 'success');
+            closeModal();
+            await loadAllData();
+            currentUserData = allUsers.find(u => u.username === currentUserData.username);
+            updateUI(currentUserData);
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 🔄 مراقبة حالة تسجيل الدخول
+    // ============================================================
+    onAuthStateChanged(auth, async (user) => {
+        showLoading(true);
+        
+        if (user) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    currentUser = user;
+                    currentUserData = { id: user.uid, ...userDoc.data() };
+                    
+                    await loadAllData();
+                    updateUI(currentUserData);
+                } else {
+                    await signOut(auth);
+                    showToast('⚠️ حدث خطأ في البيانات، حاول مرة أخرى', 'error');
+                    showLoading(false);
+                }
+            } catch (error) {
+                console.error('❌ خطأ في جلب البيانات:', error);
+                showToast('❌ حدث خطأ: ' + error.message, 'error');
+                showLoading(false);
+            }
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            updateUI(null);
+            showLoading(false);
+        }
+    });
+
+    // ============================================================
+    // 🚀 جعل الدوال عالمية للوصول من HTML
+    // ============================================================
+    window.showScreen = showScreen;
+    window.showToast = showToast;
+    window.selectRegRole = selectRegRole;
+    window.getSelectedRegRole = getSelectedRegRole;
+    window.register = register;
+    window.login = login;
+    window.logout = logout;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.publishJob = publishJob;
+    window.loadMyJobs = loadMyJobs;
+    window.closeJob = closeJob;
+    window.loadReceivedApplications = loadReceivedApplications;
+    window.acceptApplication = acceptApplication;
+    window.rejectApplication = rejectApplication;
+    window.searchJobsWorker = searchJobsWorker;
+    window.applyForJob = applyForJob;
+    window.loadMyApplications = loadMyApplications;
+    window.searchWorkers = searchWorkers;
+    window.searchOwners = searchOwners;
+    window.viewProfile = viewProfile;
+    window.viewMyProfile = viewMyProfile;
+    window.closeProfileModal = closeProfileModal;
+    window.openMessageModal = openMessageModal;
+    window.closeMessageModal = closeMessageModal;
+    window.sendMessage = sendMessage;
+    window.openWhatsApp = openWhatsApp;
+    window.callNumber = callNumber;
+    window.openRatingModal = openRatingModal;
+    window.setRating = setRating;
+    window.hoverRating = hoverRating;
+    window.resetRating = resetRating;
+    window.submitRating = submitRating;
+    window.rateUser = rateUser;
+    window.viewOwnerJobs = viewOwnerJobs;
+    window.filterOwnerWorkers = filterOwnerWorkers;
+    window.filterWorkerJobs = filterWorkerJobs;
+    window.filterWorkerOwners = filterWorkerOwners;
+    window.updateProfile = updateProfile;
+
+    console.log('🥖🍽️ تطبيق خدمة - متصل بـ Firebase');
+    console.log('🔥 Firebase Status: متصل');
+    console.log('📦 جاهز للاستخدام!');
 </script>
+
 </body>
 </html>
