@@ -3,17 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>خبّاز - منصة المخابز</title>
+    <title>خدمة - منصة التوظيف</title>
+    
+    <!-- خط عربي زوين من Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
+    <script type="importmap">
+        {
+            "imports": {
+                "firebase/app": "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js",
+                "firebase/auth": "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js",
+                "firebase/firestore": "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js",
+                "firebase/analytics": "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js"
+            }
+        }
+    </script>
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, system-ui, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            background: linear-gradient(145deg, #f8efe8 0%, #f0e0d0 100%);
+            background: linear-gradient(145deg, #fdf6f0 0%, #f5e8d8 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -24,55 +40,113 @@
         .app {
             max-width: 450px;
             width: 100%;
-            background: #ffffff;
-            border-radius: 36px;
-            padding: 24px 20px 30px;
-            box-shadow: 0 25px 70px rgba(74, 44, 27, 0.15);
-            border: 1px solid rgba(192, 114, 58, 0.05);
+            background: linear-gradient(165deg, #ffffff 0%, #fcf8f4 100%);
+            border-radius: 48px;
+            padding: 24px 18px 28px;
+            box-shadow: 0 30px 80px rgba(180, 100, 50, 0.18);
+            border: 1px solid rgba(200, 140, 80, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(212, 131, 58, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             flex-wrap: wrap;
+            gap: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
-
-        .logo { display: flex; align-items: center; gap: 8px; }
-        .logo-icon { font-size: 34px; }
-        .logo-text {
-            font-size: 26px;
-            font-weight: 800;
-            color: #3d2415;
-            letter-spacing: -0.5px;
+        .logo-icon {
+            font-size: 34px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        .logo-text span { color: #b8652e; }
+        .logo-icon .bread { 
+            font-size: 28px; 
+            animation: float 3s ease-in-out infinite;
+        }
+        .logo-icon .plate { 
+            font-size: 24px; 
+            animation: float 3s ease-in-out infinite 0.5s;
+        }
 
-        .header-right { display: flex; align-items: center; gap: 8px; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .logo-text {
+            font-size: 30px;
+            font-weight: 900;
+            color: #3d2415;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+        .logo-text .highlight {
+            color: #d4833a;
+            position: relative;
+        }
+
+        .logo-sub {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b6b51;
+            letter-spacing: 1px;
+            display: block;
+            margin-top: -2px;
+            text-transform: uppercase;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 6px; }
 
         .user-badge {
-            background: #fef3e7;
-            padding: 6px 16px;
+            background: linear-gradient(135deg, #fef3e7, #fdf3ea);
+            padding: 4px 14px;
             border-radius: 40px;
-            font-size: 13px;
+            font-size: 12px;
             color: #4a2c1b;
-            font-weight: 600;
+            font-weight: 700;
             display: none;
             align-items: center;
             gap: 6px;
             border: 1px solid #f0dcc8;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .user-badge:hover {
+            background: #fdf3ea;
+            transform: scale(1.02);
         }
 
         .btn-logout {
             background: none;
             border: none;
-            color: #b8652e;
-            font-size: 20px;
+            color: #d4833a;
+            font-size: 18px;
             cursor: pointer;
             display: none;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 50%;
             transition: 0.2s;
             background: #fdf6ed;
@@ -82,82 +156,100 @@
         .subtitle {
             text-align: center;
             color: #8b6b51;
-            font-size: 13px;
-            margin-bottom: 20px;
-            padding-bottom: 14px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #f0e0d0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+        .subtitle span {
+            color: #d4833a;
         }
 
-        .screen { display: none; animation: fadeUp 0.35s ease; }
+        .screen { display: none; animation: fadeUp 0.4s ease; }
         .screen.active { display: block; }
 
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .form-group { margin-bottom: 14px; }
+        .form-group { margin-bottom: 12px; }
         .form-group label {
             display: block;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             color: #4a2c1b;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 12px 14px;
             border: 2px solid #e8ddd2;
-            border-radius: 16px;
-            font-size: 15px;
+            border-radius: 14px;
+            font-size: 14px;
             background: #faf7f4;
             outline: none;
             transition: 0.25s;
+            font-family: 'Tajawal', sans-serif;
         }
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-            border-color: #b8652e;
+            border-color: #d4833a;
             background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(184, 101, 46, 0.08);
+            box-shadow: 0 0 0 4px rgba(212, 131, 58, 0.08);
         }
-        .form-group textarea { resize: vertical; min-height: 65px; }
+        .form-group textarea { resize: vertical; min-height: 60px; }
 
         .btn {
-            padding: 16px;
+            padding: 14px;
             border: none;
             border-radius: 40px;
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
             cursor: pointer;
-            transition: 0.25s;
+            transition: 0.3s;
             margin-top: 4px;
             width: 100%;
+            font-family: 'Tajawal', sans-serif;
+            letter-spacing: 0.3px;
         }
         .btn:active { transform: scale(0.97); }
 
         .btn-primary {
-            background: #b8652e;
+            background: linear-gradient(145deg, #d4833a, #b8652e);
             color: white;
-            box-shadow: 0 4px 18px rgba(184, 101, 46, 0.3);
+            box-shadow: 0 6px 24px rgba(212, 131, 58, 0.35);
         }
-        .btn-primary:hover { background: #a3541e; }
+        .btn-primary:hover { 
+            background: linear-gradient(145deg, #c07230, #a3541e);
+            box-shadow: 0 8px 32px rgba(212, 131, 58, 0.45);
+            transform: translateY(-2px);
+        }
 
         .btn-secondary {
             background: transparent;
-            color: #b8652e;
-            border: 2px solid #b8652e;
+            color: #d4833a;
+            border: 2px solid #d4833a;
         }
         .btn-secondary:hover { background: #fdf3ea; }
 
         .btn-success {
-            background: #2d8f4e;
+            background: linear-gradient(145deg, #2d8f4e, #1e6b38);
             color: white;
-            box-shadow: 0 4px 18px rgba(45, 143, 78, 0.25);
+            box-shadow: 0 6px 24px rgba(45, 143, 78, 0.25);
         }
-        .btn-success:hover { background: #1e6b38; }
+        .btn-success:hover { 
+            background: linear-gradient(145deg, #1e6b38, #15572a);
+            box-shadow: 0 8px 32px rgba(45, 143, 78, 0.35);
+            transform: translateY(-2px);
+        }
 
         .btn-danger {
             background: #e74c3c;
@@ -165,109 +257,129 @@
         }
         .btn-danger:hover { background: #c0392b; }
 
-        .btn-call {
+        .btn-whatsapp {
             background: #25D366;
             color: white;
-            box-shadow: 0 4px 18px rgba(37, 211, 102, 0.3);
+            box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
         }
-        .btn-call:hover { background: #1da851; }
+        .btn-whatsapp:hover { background: #1da851; }
+
+        .btn-call {
+            background: #1a73e8;
+            color: white;
+            box-shadow: 0 4px 18px rgba(26, 115, 232, 0.3);
+        }
+        .btn-call:hover { background: #1557b0; }
+
+        .btn-message {
+            background: #6c5ce7;
+            color: white;
+            box-shadow: 0 4px 18px rgba(108, 92, 231, 0.3);
+        }
+        .btn-message:hover { background: #5a4bd1; }
 
         .btn-small {
-            padding: 8px 16px;
-            font-size: 13px;
+            padding: 6px 14px;
+            font-size: 12px;
             width: auto;
             margin-top: 0;
             border-radius: 30px;
+            font-weight: 700;
         }
 
         .btn-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 6px;
         }
         .btn-row .btn { width: auto; flex: 1; }
 
         .role-selector {
             display: flex;
-            gap: 12px;
-            margin-bottom: 18px;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         .role-card {
             flex: 1;
-            padding: 16px 10px;
+            min-width: 70px;
+            padding: 12px 8px;
             border: 3px solid #e8ddd2;
-            border-radius: 20px;
+            border-radius: 18px;
             text-align: center;
             cursor: pointer;
             transition: 0.3s;
             background: #faf7f4;
         }
-        .role-card:hover { transform: translateY(-2px); }
+        .role-card:hover { transform: translateY(-3px); box-shadow: 0 4px 16px rgba(0,0,0,0.05); }
         .role-card.active {
-            border-color: #b8652e;
-            background: #fdf3ea;
-            box-shadow: 0 4px 20px rgba(184, 101, 46, 0.15);
+            border-color: #d4833a;
+            background: linear-gradient(135deg, #fdf3ea, #fef8f2);
+            box-shadow: 0 4px 24px rgba(212, 131, 58, 0.15);
         }
-        .role-card .icon { font-size: 36px; display: block; }
+        .role-card .icon { font-size: 28px; display: block; }
         .role-card .label {
-            font-weight: 700;
+            font-weight: 800;
             color: #4a2c1b;
-            font-size: 15px;
-            margin-top: 4px;
+            font-size: 12px;
+            margin-top: 3px;
         }
         .role-card .desc {
-            font-size: 12px;
+            font-size: 9px;
             color: #8b6b51;
             margin-top: 2px;
+            font-weight: 500;
         }
         .role-card .check {
             display: none;
             color: #2d8f4e;
-            font-size: 18px;
-            margin-top: 4px;
+            font-size: 16px;
+            margin-top: 3px;
         }
         .role-card.active .check { display: block; }
 
         .card {
             background: #faf7f4;
             border-radius: 18px;
-            padding: 16px;
-            margin-top: 12px;
+            padding: 14px;
+            margin-top: 10px;
             border: 1px solid #f0e0d0;
-            transition: 0.25s;
+            transition: 0.3s;
             position: relative;
         }
-        .card:hover { transform: translateX(-3px); }
+        .card:hover { transform: translateX(-4px); box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
 
         .card-owner {
-            border-right: 4px solid #b8652e;
-            background: #fdf8f3;
+            border-right: 5px solid #d4833a;
+            background: linear-gradient(135deg, #fdf8f3, #fcf5ee);
         }
 
         .card-worker {
-            border-right: 4px solid #2d8f4e;
-            background: #f3faf5;
+            border-right: 5px solid #2d8f4e;
+            background: linear-gradient(135deg, #f3faf5, #f0f8f2);
         }
 
         .card-accepted {
-            border-right: 4px solid #25D366;
-            background: #f0faf3;
+            border-right: 5px solid #25D366;
+            background: linear-gradient(135deg, #f0faf3, #e8f5ee);
         }
 
         .card h4 {
             color: #3d2415;
-            font-size: 16px;
+            font-size: 15px;
             margin-bottom: 3px;
+            font-weight: 800;
         }
         .card p {
             color: #6e5543;
-            font-size: 14px;
+            font-size: 13px;
             margin: 3px 0;
             line-height: 1.5;
+            font-weight: 400;
         }
         .card .meta {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
             margin-top: 6px;
             align-items: center;
@@ -275,12 +387,12 @@
 
         .badge {
             background: #e8ddd2;
-            padding: 2px 14px;
+            padding: 2px 12px;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: 11px;
             color: #4a2c1b;
             display: inline-block;
-            font-weight: 600;
+            font-weight: 700;
         }
         .badge-green { background: #d4edda; color: #155724; }
         .badge-red { background: #f8d7da; color: #721c24; }
@@ -288,9 +400,9 @@
         .badge-accepted { background: #25D366; color: white; }
 
         .status-badge {
-            padding: 3px 12px;
+            padding: 3px 10px;
             border-radius: 30px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 700;
         }
         .status-badge.urgent {
@@ -315,21 +427,22 @@
         .empty {
             text-align: center;
             color: #b0957e;
-            padding: 32px 10px;
-            font-size: 15px;
+            padding: 28px 10px;
+            font-size: 14px;
+            font-weight: 500;
         }
-        .empty-icon { font-size: 48px; display: block; margin-bottom: 8px; }
+        .empty-icon { font-size: 44px; display: block; margin-bottom: 6px; }
 
         .toast {
             background: #3d2415;
             color: white;
-            padding: 14px 20px;
-            border-radius: 16px;
+            padding: 12px 18px;
+            border-radius: 14px;
             text-align: center;
-            margin-top: 14px;
+            margin-top: 12px;
             display: none;
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 700;
+            font-size: 14px;
             animation: slideDown 0.3s ease;
         }
         .toast.success { background: #2d8f4e; }
@@ -344,9 +457,10 @@
         .divider {
             display: flex;
             align-items: center;
-            margin: 14px 0;
+            margin: 12px 0;
             color: #b0957e;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: 500;
         }
         .divider::before,
         .divider::after {
@@ -354,15 +468,15 @@
             flex: 1;
             border-bottom: 1px solid #e8ddd2;
         }
-        .divider::before { margin-left: 12px; }
-        .divider::after { margin-right: 12px; }
+        .divider::before { margin-left: 10px; }
+        .divider::after { margin-right: 10px; }
 
         .btn-back {
             background: none;
             border: none;
-            color: #b8652e;
-            font-size: 14px;
-            font-weight: 600;
+            color: #d4833a;
+            font-size: 13px;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -373,12 +487,35 @@
 
         .hero {
             text-align: center;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
         }
-        .hero-icon { font-size: 52px; display: block; margin-bottom: 2px; }
-        .hero-text { color: #8b6b51; font-size: 14px; }
+        .hero-icon {
+            font-size: 52px;
+            display: block;
+            margin-bottom: 2px;
+            animation: float 4s ease-in-out infinite;
+        }
+        .hero-icon .b { 
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        .hero-icon .p { 
+            display: inline-block;
+            animation: float 3s ease-in-out infinite 0.6s;
+        }
+        .hero-text {
+            color: #8b6b51;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .hero-text span {
+            color: #d4833a;
+        }
 
-        .flex { display: flex; gap: 10px; }
+        .flex { display: flex; gap: 8px; }
         .flex .btn { width: auto; flex: 1; }
         .hidden { display: none !important; }
 
@@ -388,9 +525,10 @@
         }
 
         .field-hint {
-            font-size: 12px;
+            font-size: 11px;
             color: #b0957e;
-            margin-top: 4px;
+            margin-top: 3px;
+            font-weight: 400;
         }
 
         .owner-dashboard { display: none; }
@@ -400,31 +538,32 @@
         .worker-dashboard.active { display: block; }
 
         .section-title {
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 14px;
-            font-weight: 700;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 15px;
         }
         .section-title.owner {
-            background: #fdf3ea;
+            background: linear-gradient(135deg, #fdf3ea, #fef6ed);
             border: 1px solid #f0dcc8;
             color: #4a2c1b;
         }
         .section-title.worker {
-            background: #f3faf5;
+            background: linear-gradient(135deg, #f3faf5, #eef8f0);
             border: 1px solid #d4edda;
             color: #155724;
         }
 
-        /* ====== التقييم ====== */
         .rating {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             direction: ltr;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
         }
         .rating .star {
@@ -439,9 +578,9 @@
         }
         .rating-display {
             display: flex;
-            gap: 3px;
+            gap: 2px;
             direction: ltr;
-            font-size: 18px;
+            font-size: 16px;
         }
         .rating-display .star {
             color: #f5a623;
@@ -450,36 +589,36 @@
             color: #ddd;
         }
 
-        /* ====== معلومات الاتصال ====== */
         .contact-info {
             background: #f0faf3;
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             margin-top: 8px;
             border: 1px solid #d4edda;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
         .contact-info .owner-name {
             font-weight: 700;
             color: #155724;
-            font-size: 14px;
+            font-size: 13px;
         }
         .contact-info .owner-phone {
             color: #2d8f4e;
-            font-size: 14px;
+            font-size: 13px;
             direction: ltr;
         }
-        .contact-info .btn-call-small {
+
+        .btn-whatsapp-small {
             background: #25D366;
             color: white;
             border: none;
-            padding: 8px 18px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: 0.2s;
@@ -487,12 +626,242 @@
             align-items: center;
             gap: 6px;
         }
-        .contact-info .btn-call-small:hover {
+        .btn-whatsapp-small:hover {
             background: #1da851;
             transform: scale(1.02);
         }
 
-        /* ====== النافذة المنبثقة ====== */
+        .btn-call-small {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-call-small:hover {
+            background: #1557b0;
+            transform: scale(1.02);
+        }
+
+        .btn-message-small {
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-message-small:hover {
+            background: #5a4bd1;
+            transform: scale(1.02);
+        }
+
+        .contact-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .profile-card {
+            background: linear-gradient(135deg, #fdf8f3, #fcf5ee);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #f0dcc8;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .profile-card .avatar {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .profile-card .name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #3d2415;
+        }
+        .profile-card .role-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: #d4833a;
+            display: inline-block;
+            padding: 2px 16px;
+            background: #fdf3ea;
+            border-radius: 30px;
+            margin-top: 4px;
+        }
+        .profile-card .sector-tag {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2d8f4e;
+            display: inline-block;
+            padding: 2px 16px;
+            background: #f3faf5;
+            border-radius: 30px;
+            margin-top: 4px;
+            margin-right: 6px;
+        }
+        .profile-card .bio {
+            color: #6e5543;
+            font-size: 14px;
+            margin-top: 8px;
+            padding: 10px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #f0e0d0;
+            text-align: right;
+        }
+        .profile-card .info-row {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #8b6b51;
+        }
+        .profile-card .info-row span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .message-box {
+            background: #f8f4ff;
+            border-radius: 14px;
+            padding: 14px;
+            border: 1px solid #e0d8f0;
+            margin-top: 10px;
+        }
+        .message-box textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0d8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+            resize: vertical;
+            min-height: 70px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .message-box textarea:focus {
+            border-color: #6c5ce7;
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.08);
+        }
+        .message-box .btn-row {
+            margin-top: 8px;
+        }
+
+        .sector-filter {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            background: #faf7f4;
+            border-radius: 14px;
+            border: 1px solid #f0e0d0;
+        }
+        .sector-filter .filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a2c1b;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+        .sector-filter .filter-tag {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            background: #e8ddd2;
+            color: #4a2c1b;
+            border: 2px solid transparent;
+        }
+        .sector-filter .filter-tag:hover {
+            background: #d4c4b4;
+        }
+        .sector-filter .filter-tag.active {
+            border-color: #d4833a;
+            background: #fdf3ea;
+            color: #a3541e;
+        }
+        .sector-filter .filter-tag .icon { margin-left: 4px; }
+
+        .location-badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .sector-tag {
+            background: #f0e0d0;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1;
+            padding: 8px 6px;
+            border: 2px solid #e8ddd2;
+            border-radius: 12px;
+            background: white;
+            color: #8b6b51;
+            font-weight: 700;
+            font-size: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            min-width: 50px;
+        }
+        .tab.active {
+            border-color: #d4833a;
+            background: #fdf3ea;
+            color: #a3541e;
+        }
+        .tab:active { transform: scale(0.96); }
+        .tab.worker-tab.active {
+            border-color: #2d8f4e;
+            background: #f3faf5;
+            color: #155724;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -516,8 +885,8 @@
 
         .modal-content {
             background: white;
-            border-radius: 32px;
-            padding: 28px 24px;
+            border-radius: 28px;
+            padding: 24px 20px;
             max-width: 420px;
             width: 100%;
             max-height: 90vh;
@@ -535,99 +904,63 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
             border-bottom: 2px solid #f0e0d0;
         }
         .modal-header h3 {
             color: #4a2c1b;
-            font-size: 20px;
+            font-size: 18px;
+            font-weight: 800;
         }
         .modal-close {
             background: none;
             border: none;
-            font-size: 28px;
+            font-size: 24px;
             cursor: pointer;
             color: #8b6b51;
-            padding: 0 8px;
+            padding: 0 6px;
             transition: 0.2s;
         }
         .modal-close:hover { color: #e74c3c; }
 
-        /* ====== التبويبات ====== */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-        .tab {
-            flex: 1;
-            padding: 10px 8px;
-            border: 2px solid #e8ddd2;
-            border-radius: 14px;
-            background: white;
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
             color: #8b6b51;
             font-weight: 700;
-            font-size: 13px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.25s;
-            min-width: 60px;
         }
-        .tab.active {
-            border-color: #b8652e;
-            background: #fdf3ea;
-            color: #a3541e;
+        .loading-spinner .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f0e0d0;
+            border-top: 3px solid #d4833a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 8px;
         }
-        .tab:active { transform: scale(0.96); }
-        .tab.worker-tab.active {
-            border-color: #2d8f4e;
-            background: #f3faf5;
-            color: #155724;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* ====== موقع ====== */
-        .location-badge {
-            background: #e8f0fe;
-            color: #1a73e8;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .location-badge .icon { font-size: 14px; }
-
-        .btn-location {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-location:hover { background: #1557b0; }
 
         @media (max-width: 400px) {
-            .app { padding: 18px 14px; }
-            .logo-text { font-size: 22px; }
-            .btn { font-size: 15px; padding: 14px; }
-            .role-card { padding: 12px 8px; }
-            .role-card .icon { font-size: 28px; }
-            .modal-content { padding: 20px 16px; }
-            .tab { font-size: 11px; padding: 8px 4px; }
+            .app { padding: 16px 12px; }
+            .logo-text { font-size: 24px; }
+            .btn { font-size: 14px; padding: 12px; }
+            .role-card { padding: 8px 4px; }
+            .role-card .icon { font-size: 22px; }
+            .modal-content { padding: 18px 14px; }
+            .tab { font-size: 10px; padding: 6px 4px; }
+            .contact-buttons { flex-direction: column; }
+            .contact-buttons .btn-small { width: 100%; }
+            .hero-icon { font-size: 44px; }
+            .logo-icon .bread { font-size: 24px; }
+            .logo-icon .plate { font-size: 20px; }
+            .sector-filter .filter-tag { font-size: 10px; padding: 3px 10px; }
+            .profile-card .avatar { font-size: 44px; }
+            .profile-card .name { font-size: 18px; }
         }
     </style>
 </head>
@@ -637,28 +970,39 @@
     <!-- ====== الهيدر ====== -->
     <div class="header">
         <div class="logo">
-            <span class="logo-icon">🥖</span>
-            <span class="logo-text">خب<span>ّ</span>از</span>
+            <div class="logo-icon">
+                <span class="bread">🥖</span>
+                <span class="plate">🍽️</span>
+            </div>
+            <div>
+                <div class="logo-text">
+                    <span class="highlight">خ</span>دمة
+                </div>
+                <span class="logo-sub">منصة التوظيف</span>
+            </div>
         </div>
         <div class="header-right">
-            <span class="user-badge" id="userBadge">👋 أحمد</span>
+            <span class="user-badge" id="userBadge" onclick="viewMyProfile()">👋 أحمد</span>
             <button class="btn-logout" id="logoutBtn" onclick="logout()" title="تسجيل خروج">🚪</button>
         </div>
     </div>
-    <div class="subtitle">🏪 منصة التوظيف الأولى لأصحاب المخابز والعمال</div>
+    <div class="subtitle">🥖 منصة التوظيف الأولى <span>للمهنيين والمطاعم</span> 🍽️</div>
 
     <div class="toast" id="toast"></div>
 
     <!-- ====== شاشة تسجيل الدخول ====== -->
     <div class="screen active" id="loginScreen">
         <div class="hero">
-            <span class="hero-icon">🍞</span>
-            <div class="hero-text">سجل دخولك للوصول إلى منصة التوظيف</div>
+            <span class="hero-icon">
+                <span class="b">🥖</span>
+                <span class="p">🍽️</span>
+            </span>
+            <div class="hero-text">سجل دخولك للوصول إلى <span>منصة التوظيف</span></div>
         </div>
 
-        <div style="background:#f0e0d0; border-radius:16px; padding:12px; margin-bottom:16px; text-align:center; font-size:13px; color:#4a2c1b;">
+        <div style="background:linear-gradient(135deg, #fdf3ea, #fef6ed); border-radius:14px; padding:10px; margin-bottom:14px; text-align:center; font-size:12px; color:#4a2c1b; border:1px solid #f0dcc8;">
             <strong>🔑 مستخدمين تجريبيين:</strong><br>
-            🏪 <strong>فرن_الدار</strong> / <strong>1234</strong> &nbsp;|&nbsp; 👨‍🍳 <strong>خباز_محمد</strong> / <strong>1234</strong>
+            🏪 <strong>مطعم_الدار</strong> / <strong>123456</strong> &nbsp;|&nbsp; 🎯 <strong>مهني_محمد</strong> / <strong>123456</strong>
         </div>
 
         <div class="form-group">
@@ -682,21 +1026,21 @@
         <button class="btn-back" onclick="showScreen('loginScreen')">← رجوع</button>
 
         <div class="hero">
-            <span class="hero-icon">👨‍🍳</span>
+            <span class="hero-icon">🎯</span>
             <div class="hero-text">أنشئ حسابك واختر دورك</div>
         </div>
 
         <div class="role-selector">
             <div class="role-card active" id="regRoleWorker" onclick="selectRegRole('worker')">
-                <span class="icon">👨‍🍳</span>
-                <div class="label">عامل</div>
+                <span class="icon">🎯</span>
+                <div class="label">مهني</div>
                 <div class="desc">أبحث عن عمل</div>
                 <span class="check">✅</span>
             </div>
             <div class="role-card" id="regRoleOwner" onclick="selectRegRole('owner')">
                 <span class="icon">🏪</span>
-                <div class="label">صاحب فرن</div>
-                <div class="desc">أبحث عن عمال</div>
+                <div class="label">صاحب منشأة</div>
+                <div class="desc">أبحث عن مهنيين</div>
                 <span class="check">✅</span>
             </div>
         </div>
@@ -707,11 +1051,37 @@
         </div>
         <div class="form-group">
             <label>🔒 كلمة المرور <span style="color:#b8652e;">*</span></label>
-            <input type="password" id="regPass" placeholder="4 أحرف على الأقل" autocomplete="new-password">
+            <input type="password" id="regPass" placeholder="6 أحرف على الأقل" autocomplete="new-password">
         </div>
         <div class="form-group">
             <label>📍 المدينة <span style="color:#b8652e;">*</span></label>
             <input type="text" id="regCity" placeholder="الدار البيضاء، مراكش..." autocomplete="address-level2">
+        </div>
+        <div class="form-group">
+            <label>📱 رقم الهاتف <span style="color:#b8652e;">*</span></label>
+            <input type="tel" id="regPhone" placeholder="0612345678" autocomplete="tel">
+            <div class="field-hint">سيظهر للجميع للتواصل عبر واتساب أو الاتصال</div>
+        </div>
+        <div class="form-group">
+            <label>📝 وصف المهني أو المحل</label>
+            <textarea id="regBio" placeholder="مثال: خباز محترف خبرة 5 سنوات... أو مطعم متخصص في الأكل المغربي..." rows="3"></textarea>
+            <div class="field-hint">هذا الوصف سيظهر في ملفك الشخصي</div>
+        </div>
+        <div class="form-group">
+            <label>🏷️ قطاع عملك <span style="color:#b8652e;">*</span></label>
+            <select id="regSector">
+                <option value="">اختر القطاع</option>
+                <option value="مخبز">🥖 مخبز</option>
+                <option value="مقهى">☕ مقهى</option>
+                <option value="مطعم">🍽️ مطعم</option>
+                <option value="سناك">🍔 سناك</option>
+                <option value="محلبات">🍦 محلبات</option>
+                <option value="مطعم_وجبات_سريعة">🍟 مطعم وجبات سريعة</option>
+                <option value="مطعم_عائلي">👨‍👩‍👦 مطعم عائلي</option>
+                <option value="مطعم_فاخر">✨ مطعم فاخر</option>
+                <option value="أخرى">📌 أخرى</option>
+            </select>
+            <div class="field-hint">اختر القطاع الذي تعمل فيه أو تبحث عنه</div>
         </div>
 
         <button class="btn btn-primary" onclick="register()">✅ إنشاء حساب</button>
@@ -720,94 +1090,138 @@
 
     <!-- ====== اللوحة الرئيسية ====== -->
     <div class="screen" id="mainScreen">
-
-        <!-- ====== واجهة صاحب الفرن ====== -->
-        <div class="owner-dashboard active" id="ownerDashboard">
-            <div class="section-title owner">🏪 لوحة صاحب الفرن</div>
-
-            <div class="tabs">
-                <div class="tab active" onclick="switchOwnerTab('jobs')">📋 إعلاناتي</div>
-                <div class="tab" onclick="switchOwnerTab('requests')">📩 طلباتي</div>
-                <div class="tab" onclick="switchOwnerTab('workers')">👨‍🍳 عمال</div>
-            </div>
-
-            <div class="tab-content active" id="ownerJobsTab">
-                <div class="btn-row">
-                    <button class="btn btn-primary btn-small" onclick="openModal('job')">📤 نشر إعلان</button>
-                    <button class="btn btn-secondary btn-small" onclick="refreshOwnerData()">🔄 تحديث</button>
-                </div>
-                <div id="myJobsList">
-                    <div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="ownerRequestsTab">
-                <div id="receivedAppsList">
-                    <div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="ownerWorkersTab">
-                <div class="form-group">
-                    <label>🔍 ابحث عن عمال</label>
-                    <div class="flex">
-                        <input type="text" id="ownerSearchWorker" placeholder="اسم أو مدينة" style="flex:1;">
-                        <button class="btn btn-primary btn-small" onclick="searchWorkers()">بحث</button>
-                    </div>
-                </div>
-                <div id="workersList">
-                    <div class="empty">
-                        <span class="empty-icon">🔎</span>
-                        ابحث عن عمال في مدينتك
-                    </div>
-                </div>
-            </div>
+        <div class="loading-spinner" id="mainLoading">
+            <div class="spinner"></div>
+            جاري التحميل...
         </div>
+        <div id="mainContent" style="display:none;">
+            <!-- ====== واجهة صاحب المنشأة ====== -->
+            <div class="owner-dashboard active" id="ownerDashboard">
+                <div class="section-title owner">🏪 لوحة صاحب المنشأة</div>
 
-        <!-- ====== واجهة العامل ====== -->
-        <div class="worker-dashboard" id="workerDashboard">
-            <div class="section-title worker">👨‍🍳 لوحة العامل</div>
+                <div class="tabs">
+                    <div class="tab active" onclick="switchOwnerTab('jobs')">📋 إعلاناتي</div>
+                    <div class="tab" onclick="switchOwnerTab('requests')">📩 طلباتي</div>
+                    <div class="tab" onclick="switchOwnerTab('workers')">🎯 مهنيين</div>
+                </div>
 
-            <div class="tabs">
-                <div class="tab worker-tab active" onclick="switchWorkerTab('jobs')">🔍 وظائف</div>
-                <div class="tab worker-tab" onclick="switchWorkerTab('applications')">📩 طلباتي</div>
-                <div class="tab worker-tab" onclick="switchWorkerTab('owners')">🏪 أفران</div>
-            </div>
-
-            <div class="tab-content active" id="workerJobsTab">
-                <div class="form-group">
-                    <label>🔍 ابحث عن وظائف</label>
-                    <div class="flex">
-                        <input type="text" id="searchCityWorker" placeholder="اسم المدينة" style="flex:1;">
-                        <button class="btn btn-primary btn-small" onclick="searchJobsWorker()">بحث</button>
+                <div class="tab-content active" id="ownerJobsTab">
+                    <div class="btn-row">
+                        <button class="btn btn-primary btn-small" onclick="openModal('job')">📤 نشر إعلان</button>
+                        <button class="btn btn-secondary btn-small" onclick="loadMyJobs()">🔄 تحديث</button>
+                    </div>
+                    <div id="myJobsList">
+                        <div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>
                     </div>
                 </div>
-                <div id="jobsResults">
-                    <div class="empty">
-                        <span class="empty-icon">🔎</span>
-                        ابحث عن وظائف في مدينتك
+
+                <div class="tab-content" id="ownerRequestsTab">
+                    <div id="receivedAppsList">
+                        <div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="ownerWorkersTab">
+                    <div class="sector-filter" id="ownerSectorFilter">
+                        <div class="filter-label">🏷️ فلتر حسب القطاع:</div>
+                        <span class="filter-tag active" data-sector="all" onclick="filterOwnerWorkers('all')">📌 الكل</span>
+                        <span class="filter-tag" data-sector="مخبز" onclick="filterOwnerWorkers('مخبز')">🥖 مخبز</span>
+                        <span class="filter-tag" data-sector="مقهى" onclick="filterOwnerWorkers('مقهى')">☕ مقهى</span>
+                        <span class="filter-tag" data-sector="مطعم" onclick="filterOwnerWorkers('مطعم')">🍽️ مطعم</span>
+                        <span class="filter-tag" data-sector="سناك" onclick="filterOwnerWorkers('سناك')">🍔 سناك</span>
+                        <span class="filter-tag" data-sector="محلبات" onclick="filterOwnerWorkers('محلبات')">🍦 محلبات</span>
+                        <span class="filter-tag" data-sector="مطعم_وجبات_سريعة" onclick="filterOwnerWorkers('مطعم_وجبات_سريعة')">🍟 وجبات سريعة</span>
+                        <span class="filter-tag" data-sector="مطعم_عائلي" onclick="filterOwnerWorkers('مطعم_عائلي')">👨‍👩‍👦 عائلي</span>
+                        <span class="filter-tag" data-sector="مطعم_فاخر" onclick="filterOwnerWorkers('مطعم_فاخر')">✨ فاخر</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔍 ابحث عن مهنيين</label>
+                        <div class="flex">
+                            <input type="text" id="ownerSearchWorker" placeholder="اسم أو مدينة" style="flex:1;">
+                            <button class="btn btn-primary btn-small" onclick="searchWorkers()">بحث</button>
+                        </div>
+                    </div>
+                    <div id="workersList">
+                        <div class="empty">
+                            <span class="empty-icon">🔎</span>
+                            ابحث عن مهنيين في مدينتك
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="tab-content" id="workerApplicationsTab">
-                <div id="myApplicationsList">
-                    <div class="empty"><span class="empty-icon">📭</span>لم تتقدم لأي وظيفة بعد</div>
-                </div>
-            </div>
+            <!-- ====== واجهة المهني ====== -->
+            <div class="worker-dashboard" id="workerDashboard">
+                <div class="section-title worker">🎯 لوحة المهني</div>
 
-            <div class="tab-content" id="workerOwnersTab">
-                <div class="form-group">
-                    <label>🔍 ابحث عن أفران</label>
-                    <div class="flex">
-                        <input type="text" id="workerSearchOwner" placeholder="اسم أو مدينة" style="flex:1;">
-                        <button class="btn btn-primary btn-small" onclick="searchOwners()">بحث</button>
+                <div class="tabs">
+                    <div class="tab worker-tab active" onclick="switchWorkerTab('jobs')">🔍 وظائف</div>
+                    <div class="tab worker-tab" onclick="switchWorkerTab('applications')">📩 طلباتي</div>
+                    <div class="tab worker-tab" onclick="switchWorkerTab('owners')">🏪 منشآت</div>
+                </div>
+
+                <div class="tab-content active" id="workerJobsTab">
+                    <div class="sector-filter" id="workerSectorFilter">
+                        <div class="filter-label">🏷️ فلتر حسب القطاع:</div>
+                        <span class="filter-tag active" data-sector="all" onclick="filterWorkerJobs('all')">📌 الكل</span>
+                        <span class="filter-tag" data-sector="مخبز" onclick="filterWorkerJobs('مخبز')">🥖 مخبز</span>
+                        <span class="filter-tag" data-sector="مقهى" onclick="filterWorkerJobs('مقهى')">☕ مقهى</span>
+                        <span class="filter-tag" data-sector="مطعم" onclick="filterWorkerJobs('مطعم')">🍽️ مطعم</span>
+                        <span class="filter-tag" data-sector="سناك" onclick="filterWorkerJobs('سناك')">🍔 سناك</span>
+                        <span class="filter-tag" data-sector="محلبات" onclick="filterWorkerJobs('محلبات')">🍦 محلبات</span>
+                        <span class="filter-tag" data-sector="مطعم_وجبات_سريعة" onclick="filterWorkerJobs('مطعم_وجبات_سريعة')">🍟 وجبات سريعة</span>
+                        <span class="filter-tag" data-sector="مطعم_عائلي" onclick="filterWorkerJobs('مطعم_عائلي')">👨‍👩‍👦 عائلي</span>
+                        <span class="filter-tag" data-sector="مطعم_فاخر" onclick="filterWorkerJobs('مطعم_فاخر')">✨ فاخر</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔍 ابحث عن وظائف</label>
+                        <div class="flex">
+                            <input type="text" id="searchCityWorker" placeholder="اسم المدينة" style="flex:1;">
+                            <button class="btn btn-primary btn-small" onclick="searchJobsWorker()">بحث</button>
+                        </div>
+                    </div>
+                    <div id="jobsResults">
+                        <div class="empty">
+                            <span class="empty-icon">🔎</span>
+                            ابحث عن وظائف في مدينتك
+                        </div>
                     </div>
                 </div>
-                <div id="ownersList">
-                    <div class="empty">
-                        <span class="empty-icon">🔎</span>
-                        ابحث عن أفران في مدينتك
+
+                <div class="tab-content" id="workerApplicationsTab">
+                    <div id="myApplicationsList">
+                        <div class="empty"><span class="empty-icon">📭</span>لم تتقدم لأي وظيفة بعد</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="workerOwnersTab">
+                    <div class="sector-filter" id="workerOwnerSectorFilter">
+                        <div class="filter-label">🏷️ فلتر حسب القطاع:</div>
+                        <span class="filter-tag active" data-sector="all" onclick="filterWorkerOwners('all')">📌 الكل</span>
+                        <span class="filter-tag" data-sector="مخبز" onclick="filterWorkerOwners('مخبز')">🥖 مخبز</span>
+                        <span class="filter-tag" data-sector="مقهى" onclick="filterWorkerOwners('مقهى')">☕ مقهى</span>
+                        <span class="filter-tag" data-sector="مطعم" onclick="filterWorkerOwners('مطعم')">🍽️ مطعم</span>
+                        <span class="filter-tag" data-sector="سناك" onclick="filterWorkerOwners('سناك')">🍔 سناك</span>
+                        <span class="filter-tag" data-sector="محلبات" onclick="filterWorkerOwners('محلبات')">🍦 محلبات</span>
+                        <span class="filter-tag" data-sector="مطعم_وجبات_سريعة" onclick="filterWorkerOwners('مطعم_وجبات_سريعة')">🍟 وجبات سريعة</span>
+                        <span class="filter-tag" data-sector="مطعم_عائلي" onclick="filterWorkerOwners('مطعم_عائلي')">👨‍👩‍👦 عائلي</span>
+                        <span class="filter-tag" data-sector="مطعم_فاخر" onclick="filterWorkerOwners('مطعم_فاخر')">✨ فاخر</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>🔍 ابحث عن منشآت</label>
+                        <div class="flex">
+                            <input type="text" id="workerSearchOwner" placeholder="اسم أو مدينة" style="flex:1;">
+                            <button class="btn btn-primary btn-small" onclick="searchOwners()">بحث</button>
+                        </div>
+                    </div>
+                    <div id="ownersList">
+                        <div class="empty">
+                            <span class="empty-icon">🔎</span>
+                            ابحث عن منشآت في مدينتك
+                        </div>
                     </div>
                 </div>
             </div>
@@ -815,7 +1229,33 @@
     </div>
 </div>
 
-<!-- ====== النافذة المنبثقة ====== -->
+<!-- ====== نافذة الملف الشخصي ====== -->
+<div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="profileModalTitle">📋 الملف الشخصي</h3>
+            <button class="modal-close" onclick="closeProfileModal()">✕</button>
+        </div>
+        <div id="profileModalBody">
+            <!-- المحتوى يتغير ديناميكياً -->
+        </div>
+    </div>
+</div>
+
+<!-- ====== نافذة الرسالة ====== -->
+<div class="modal-overlay" id="messageModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="messageModalTitle">💬 إرسال رسالة</h3>
+            <button class="modal-close" onclick="closeMessageModal()">✕</button>
+        </div>
+        <div id="messageModalBody">
+            <!-- المحتوى يتغير ديناميكياً -->
+        </div>
+    </div>
+</div>
+
+<!-- ====== النافذة المنبثقة العامة ====== -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div class="modal-header">
@@ -828,33 +1268,57 @@
     </div>
 </div>
 
-<script>
+<script type="module">
     // ============================================================
-    // 💾 التخزين المحلي
+    // 🔥 استيراد Firebase
     // ============================================================
-    function getData(key) {
-        try {
-            const data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : [];
-        } catch { return []; }
-    }
-
-    function setData(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
-    }
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, orderBy, updateDoc, deleteDoc, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-analytics.js";
 
     // ============================================================
-    // 📦 قاعدة البيانات
+    // 🔥 إعدادات Firebase
     // ============================================================
-    let users = getData('khbaz_users_final');
-    let jobs = getData('khbaz_jobs_final');
-    let applications = getData('khbaz_applications_final');
-    let reviews = getData('khbaz_reviews');
+    const firebaseConfig = {
+        apiKey: "AIzaSyBllf-5nXOcdhxarDfcqSAPyPRz5J-IiXo",
+        authDomain: "wadifti-9c7b1.firebaseapp.com",
+        databaseURL: "https://wadifti-9c7b1-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "wadifti-9c7b1",
+        storageBucket: "wadifti-9c7b1.firebasestorage.app",
+        messagingSenderId: "814051581766",
+        appId: "1:814051581766:web:61fafe5f21c45811d70f47",
+        measurementId: "G-N3KWQTG3M4"
+    };
+
+    // تهيئة Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    console.log('🔥 Firebase متصل بنجاح!');
+
+    // ============================================================
+    // 📦 البيانات
+    // ============================================================
     let currentUser = null;
-    let userLocation = null;
+    let currentUserData = null;
+    let allUsers = [];
+    let allJobs = [];
+    let allApplications = [];
+    let allReviews = [];
+    let allMessages = [];
 
     // ============================================================
-    // 🖥️ دوال الواجهة
+    // 🔍 متغيرات الفلترة
+    // ============================================================
+    let ownerSectorFilter = 'all';
+    let workerSectorFilter = 'all';
+    let workerOwnerSectorFilter = 'all';
+
+    // ============================================================
+    // 🖥️ دوال الواجهة العامة
     // ============================================================
     function showScreen(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -878,79 +1342,51 @@
         t.className = 'toast';
     }
 
-    // ============================================================
-    // 📍 تحديد الموقع
-    // ============================================================
-    function getLocation() {
-        if (!navigator.geolocation) {
-            showToast('⚠️ متصفحك لا يدعم تحديد الموقع', 'error');
-            return;
+    function showLoading(show) {
+        const loading = document.getElementById('mainLoading');
+        const content = document.getElementById('mainContent');
+        if (show) {
+            loading.style.display = 'block';
+            content.style.display = 'none';
+        } else {
+            loading.style.display = 'none';
+            content.style.display = 'block';
         }
-
-        showToast('⏳ جاري تحديد موقعك...', 'info');
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                userLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                showToast('📍 تم تحديد موقعك بنجاح!', 'success');
-                getCityFromCoords(userLocation.lat, userLocation.lng);
-            },
-            function(error) {
-                showToast('⚠️ لم نتمكن من تحديد موقعك: ' + error.message, 'error');
-            },
-            { enableHighAccuracy: true }
-        );
     }
 
-    function getCityFromCoords(lat, lng) {
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.address && data.address.city) {
-                    const city = data.address.city;
-                    if (currentUser) {
-                        const userIndex = users.findIndex(u => u.username === currentUser.username);
-                        if (userIndex !== -1) {
-                            users[userIndex].city = city;
-                            users[userIndex].location = { lat, lng };
-                            setData('khbaz_users_final', users);
-                            currentUser = users[userIndex];
-                            showToast(`📍 تم تحديث مدينتك: ${city}`, 'success');
-                            if (currentUser.role === 'owner') {
-                                loadMyJobs();
-                            } else {
-                                searchJobsWorker();
-                            }
-                        }
-                    }
-                }
-            })
-            .catch(() => {
-                if (currentUser) {
-                    const userIndex = users.findIndex(u => u.username === currentUser.username);
-                    if (userIndex !== -1) {
-                        users[userIndex].location = { lat, lng };
-                        setData('khbaz_users_final', users);
-                        currentUser = users[userIndex];
-                    }
-                }
-            });
+    // ============================================================
+    // 📞 دوال الاتصال
+    // ============================================================
+    function openWhatsApp(phoneNumber) {
+        if (!phoneNumber) {
+            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
+            return;
+        }
+        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '').replace(/^0/, '212');
+        window.open(`https://wa.me/${cleanNumber}`, '_blank');
+    }
+
+    function callNumber(phoneNumber) {
+        if (!phoneNumber) {
+            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
+            return;
+        }
+        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '');
+        window.location.href = 'tel:' + cleanNumber;
     }
 
     // ============================================================
     // ⭐ نظام التقييم
     // ============================================================
     function calculateAverageRating(targetUsername) {
-        const userReviews = reviews.filter(r => r.target === targetUsername);
+        const userReviews = allReviews.filter(r => r.target === targetUsername);
         if (userReviews.length === 0) return 0;
         const total = userReviews.reduce((sum, r) => sum + r.rating, 0);
         return Math.round((total / userReviews.length) * 10) / 10;
     }
 
     function getRatingCount(targetUsername) {
-        return reviews.filter(r => r.target === targetUsername).length;
+        return allReviews.filter(r => r.target === targetUsername).length;
     }
 
     function renderStars(rating) {
@@ -968,45 +1404,215 @@
         return html;
     }
 
-    function rateUser(targetUsername, rating) {
+    async function rateUser(targetUsername, rating) {
         if (!currentUser) {
             showToast('❌ يجب تسجيل الدخول أولاً', 'error');
             return;
         }
-        if (currentUser.username === targetUsername) {
+        if (currentUserData.username === targetUsername) {
             showToast('❌ لا يمكنك تقييم نفسك', 'error');
             return;
         }
 
-        const existingReview = reviews.find(r =>
-            r.from === currentUser.username && r.target === targetUsername
-        );
+        try {
+            // التحقق من وجود تقييم سابق
+            const q = query(collection(db, 'reviews'), 
+                where('from', '==', currentUserData.username), 
+                where('target', '==', targetUsername)
+            );
+            const snapshot = await getDocs(q);
 
-        if (existingReview) {
-            existingReview.rating = rating;
-            existingReview.date = new Date().toISOString();
-        } else {
-            reviews.push({
-                id: 'rev_' + Date.now(),
-                from: currentUser.username,
-                target: targetUsername,
-                rating: rating,
-                date: new Date().toISOString()
-            });
-        }
+            if (!snapshot.empty) {
+                // تحديث التقييم الموجود
+                const docRef = snapshot.docs[0].ref;
+                await updateDoc(docRef, {
+                    rating: rating,
+                    date: new Date().toISOString()
+                });
+            } else {
+                // إنشاء تقييم جديد
+                await addDoc(collection(db, 'reviews'), {
+                    from: currentUserData.username,
+                    target: targetUsername,
+                    rating: rating,
+                    date: new Date().toISOString()
+                });
+            }
 
-        setData('khbaz_reviews', reviews);
-        showToast(`⭐ تم تقييم المستخدم بـ ${rating} نجوم!`, 'success');
-
-        if (currentUser.role === 'owner') {
-            searchWorkers();
-        } else {
-            searchOwners();
+            showToast(`⭐ تم تقييم المستخدم بـ ${rating} نجوم!`, 'success');
+            
+            // تحديث البيانات
+            await loadAllData();
+            if (currentUserData.role === 'owner') {
+                searchWorkers();
+            } else {
+                searchOwners();
+            }
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
         }
     }
 
     // ============================================================
-    // 🎯 النافذة المنبثقة
+    // 💬 نظام الرسائل
+    // ============================================================
+    async function sendMessage(to, message) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        if (!message || message.trim() === '') {
+            showToast('❌ اكتب رسالتك', 'error');
+            return;
+        }
+
+        try {
+            await addDoc(collection(db, 'messages'), {
+                from: currentUserData.username,
+                to: to,
+                message: message.trim(),
+                read: false,
+                createdAt: new Date().toISOString()
+            });
+
+            showToast('✅ تم إرسال الرسالة بنجاح!', 'success');
+            closeMessageModal();
+            await loadAllData();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    function getMessagesForUser(username) {
+        return allMessages.filter(m => m.to === username || m.from === username);
+    }
+
+    function getUnreadCount(username) {
+        return allMessages.filter(m => m.to === username && !m.read).length;
+    }
+
+    // ============================================================
+    // 📋 الملف الشخصي
+    // ============================================================
+    function viewMyProfile() {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        viewProfile(currentUserData.username);
+    }
+
+    function viewProfile(username) {
+        const user = allUsers.find(u => u.username === username);
+        if (!user) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        const overlay = document.getElementById('profileModal');
+        const title = document.getElementById('profileModalTitle');
+        const body = document.getElementById('profileModalBody');
+
+        const isOwner = user.role === 'owner';
+        const avgRating = calculateAverageRating(user.username);
+        const ratingCount = getRatingCount(user.username);
+        const unread = getUnreadCount(user.username);
+
+        title.textContent = '📋 الملف الشخصي';
+
+        body.innerHTML = `
+            <div class="profile-card">
+                <span class="avatar">${isOwner ? '🏪' : '🎯'}</span>
+                <div class="name">${user.displayName || user.username}</div>
+                <div>
+                    <span class="role-tag">${isOwner ? '🏪 صاحب منشأة' : '🎯 مهني'}</span>
+                    ${user.sector ? `<span class="sector-tag">${user.sectorIcon || ''} ${user.sector.replace(/_/g, ' ')}</span>` : ''}
+                </div>
+                <div class="info-row">
+                    <span>📍 ${user.city || 'غير محدد'}</span>
+                    <span>📱 ${user.phone || 'غير متوفر'}</span>
+                    ${unread > 0 ? `<span style="color:#6c5ce7;">💬 ${unread} رسالة جديدة</span>` : ''}
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px;">
+                    ${renderStars(avgRating)}
+                    <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                </div>
+                ${user.bio ? `
+                    <div class="bio">
+                        📝 <strong>${isOwner ? 'وصف المحل:' : 'وصف المهني:'}</strong><br>
+                        ${user.bio}
+                    </div>
+                ` : `
+                    <div class="bio" style="color:#b0957e;">
+                        ${isOwner ? '📝 لم يضف وصفاً للمحل بعد' : '📝 لم يضف وصفاً مهنياً بعد'}
+                    </div>
+                `}
+            </div>
+            <div class="btn-row">
+                ${currentUser && currentUserData.username !== username ? `
+                    <button class="btn btn-message btn-small" onclick="openMessageModal('${username}')">💬 إرسال رسالة</button>
+                ` : ''}
+                ${user.phone ? `
+                    <button class="btn btn-whatsapp btn-small" onclick="openWhatsApp('${user.phone}')">💬 واتساب</button>
+                    <button class="btn btn-call btn-small" onclick="callNumber('${user.phone}')">📞 اتصال</button>
+                ` : ''}
+                ${currentUser && currentUserData.username !== username ? `
+                    <button class="btn btn-secondary btn-small" onclick="closeProfileModal(); openRatingModal('${username}')">⭐ تقييم</button>
+                ` : ''}
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ============================================================
+    // 💬 نافذة إرسال رسالة
+    // ============================================================
+    function openMessageModal(toUsername) {
+        const overlay = document.getElementById('messageModal');
+        const title = document.getElementById('messageModalTitle');
+        const body = document.getElementById('messageModalBody');
+
+        const targetUser = allUsers.find(u => u.username === toUsername);
+        if (!targetUser) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        title.textContent = `💬 إرسال رسالة إلى ${targetUser.displayName || targetUser.username}`;
+        body.innerHTML = `
+            <div style="text-align:center; margin-bottom:10px;">
+                <span style="font-size:40px;">${targetUser.role === 'owner' ? '🏪' : '🎯'}</span>
+                <div style="font-weight:700; color:#3d2415;">${targetUser.displayName || targetUser.username}</div>
+                <div style="font-size:13px; color:#8b6b51;">📍 ${targetUser.city || 'غير محدد'}</div>
+            </div>
+            <div class="message-box">
+                <textarea id="messageText" placeholder="اكتب رسالتك هنا..."></textarea>
+                <div class="btn-row">
+                    <button class="btn btn-message btn-small" onclick="sendMessage('${toUsername}', document.getElementById('messageText').value)">📤 إرسال</button>
+                    <button class="btn btn-secondary btn-small" onclick="closeMessageModal()">إلغاء</button>
+                </div>
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => document.getElementById('messageText').focus(), 200);
+    }
+
+    function closeMessageModal() {
+        document.getElementById('messageModal').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // ============================================================
+    // 🎯 النافذة المنبثقة العامة
     // ============================================================
     function openModal(type) {
         const overlay = document.getElementById('modalOverlay');
@@ -1017,8 +1623,22 @@
             title.textContent = '📤 نشر إعلان جديد';
             body.innerHTML = `
                 <div class="form-group">
+                    <label>🏷️ قطاع المنشأة <span style="color:#b8652e;">*</span></label>
+                    <select id="modalJobSector">
+                        <option value="مخبز">🥖 مخبز</option>
+                        <option value="مقهى">☕ مقهى</option>
+                        <option value="مطعم">🍽️ مطعم</option>
+                        <option value="سناك">🍔 سناك</option>
+                        <option value="محلبات">🍦 محلبات</option>
+                        <option value="مطعم_وجبات_سريعة">🍟 مطعم وجبات سريعة</option>
+                        <option value="مطعم_عائلي">👨‍👩‍👦 مطعم عائلي</option>
+                        <option value="مطعم_فاخر">✨ مطعم فاخر</option>
+                        <option value="أخرى">📌 أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label>📋 عنوان الإعلان <span style="color:#b8652e;">*</span></label>
-                    <input type="text" id="modalJobTitle" placeholder="مطلوب خباز تقليدي">
+                    <input type="text" id="modalJobTitle" placeholder="مطلوب طباخ">
                 </div>
                 <div class="form-group">
                     <label>📝 التفاصيل <span style="color:#b8652e;">*</span></label>
@@ -1029,13 +1649,9 @@
                     <input type="text" id="modalJobCity" placeholder="الدار البيضاء">
                 </div>
                 <div class="form-group">
-                    <label>💰 الراتب</label>
-                    <input type="text" id="modalJobSalary" placeholder="3000 درهم">
-                </div>
-                <div class="form-group">
-                    <label>📱 رقم هاتف الفرن <span style="color:#b8652e;">*</span></label>
-                    <input type="text" id="modalJobPhone" placeholder="0612345678">
-                    <div class="field-hint">سيظهر للعمال بعد قبول طلبهم</div>
+                    <label>📱 رقم الهاتف <span style="color:#b8652e;">*</span></label>
+                    <input type="tel" id="modalJobPhone" placeholder="0612345678">
+                    <div class="field-hint">سيظهر للمهنيين للتواصل عبر واتساب أو الاتصال</div>
                 </div>
                 <div class="form-group">
                     <label>🔴 حالة الطلب</label>
@@ -1045,7 +1661,7 @@
                     </select>
                 </div>
                 <div class="btn-row">
-                    <button class="btn btn-primary" onclick="publishJobFromModal()">📤 نشر</button>
+                    <button class="btn btn-primary" onclick="publishJob()">📤 نشر</button>
                     <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
                 </div>
             `;
@@ -1055,10 +1671,14 @@
                 <div class="form-group">
                     <label>👤 التخصص</label>
                     <select id="modalWorkerSpecialty">
-                        <option value="خباز تقليدي">خباز تقليدي</option>
-                        <option value="خباز عصري">خباز عصري</option>
+                        <option value="طباخ">طباخ</option>
+                        <option value="خباز">خباز</option>
                         <option value="عجان">عجان</option>
-                        <option value="مساعد فرن">مساعد فرن</option>
+                        <option value="مساعد طباخ">مساعد طباخ</option>
+                        <option value="بارستا">بارستا (محضر قهوة)</option>
+                        <option value="نادل">نادل</option>
+                        <option value="محضر سناكس">محضر سناكس</option>
+                        <option value="محضر حلويات">محضر حلويات</option>
                         <option value="جميع المهارات">جميع المهارات</option>
                     </select>
                 </div>
@@ -1073,16 +1693,22 @@
                         <option value="not-available">🔴 مشغول حالياً</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>📱 رقم الهاتف</label>
+                    <input type="tel" id="modalWorkerPhone" placeholder="0612345678">
+                    <div class="field-hint">سيظهر لأصحاب المنشآت للتواصل معك</div>
+                </div>
                 <div class="btn-row">
-                    <button class="btn btn-success" onclick="updateProfileFromModal()">💾 حفظ</button>
+                    <button class="btn btn-success" onclick="updateProfile()">💾 حفظ</button>
                     <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
                 </div>
             `;
-            if (currentUser) {
+            if (currentUserData) {
                 setTimeout(() => {
-                    document.getElementById('modalWorkerSpecialty').value = currentUser.specialty || 'خباز تقليدي';
-                    document.getElementById('modalWorkerBio').value = currentUser.bio || '';
-                    document.getElementById('modalWorkerStatus').value = currentUser.workerStatus || 'available';
+                    document.getElementById('modalWorkerSpecialty').value = currentUserData.specialty || 'طباخ';
+                    document.getElementById('modalWorkerBio').value = currentUserData.bio || '';
+                    document.getElementById('modalWorkerStatus').value = currentUserData.workerStatus || 'available';
+                    document.getElementById('modalWorkerPhone').value = currentUserData.phone || '';
                 }, 50);
             }
         }
@@ -1118,56 +1744,85 @@
     }
 
     // ============================================================
-    // 🔐 المصادقة
+    // 🔐 المصادقة مع Firebase
     // ============================================================
-    function register() {
+    async function register() {
         const username = document.getElementById('regUser').value.trim();
         const password = document.getElementById('regPass').value;
         const city = document.getElementById('regCity').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const bio = document.getElementById('regBio').value.trim();
         const role = getSelectedRegRole();
+        const sector = document.getElementById('regSector').value;
 
         document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
 
         let hasError = false;
         if (!username) { document.getElementById('regUser').classList.add('input-error'); hasError = true; }
-        if (!password || password.length < 4) { document.getElementById('regPass').classList.add('input-error'); hasError = true; }
+        if (!password || password.length < 6) { document.getElementById('regPass').classList.add('input-error'); hasError = true; }
         if (!city) { document.getElementById('regCity').classList.add('input-error'); hasError = true; }
+        if (!phone) { document.getElementById('regPhone').classList.add('input-error'); hasError = true; }
+        if (!sector) { document.getElementById('regSector').classList.add('input-error'); hasError = true; }
 
         if (hasError) {
             showToast('❌ الرجاء ملء جميع الحقول المطلوبة', 'error');
             return;
         }
 
-        if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-            showToast('❌ هذا الاسم موجود مسبقاً', 'error');
-            document.getElementById('regUser').classList.add('input-error');
-            return;
+        try {
+            // التحقق من عدم وجود المستخدم في Firestore
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('username', '==', username));
+            const snapshot = await getDocs(q);
+            
+            if (!snapshot.empty) {
+                showToast('❌ هذا الاسم موجود مسبقاً', 'error');
+                document.getElementById('regUser').classList.add('input-error');
+                return;
+            }
+
+            // إنشاء حساب في Firebase Auth
+            const userCredential = await createUserWithEmailAndPassword(auth, username + '@khdma.app', password);
+            const user = userCredential.user;
+
+            const sectorIcons = {
+                'مخبز': '🥖',
+                'مقهى': '☕',
+                'مطعم': '🍽️',
+                'سناك': '🍔',
+                'محلبات': '🍦',
+                'مطعم_وجبات_سريعة': '🍟',
+                'مطعم_عائلي': '👨‍👩‍👦',
+                'مطعم_فاخر': '✨',
+                'أخرى': '📌'
+            };
+
+            // حفظ بيانات المستخدم في Firestore
+            await setDoc(doc(db, 'users', user.uid), {
+                username: username,
+                email: username + '@khdma.app',
+                city: city,
+                phone: phone,
+                bio: bio || (role === 'worker' ? 'مهني محترف في مجال الأكل والشرب' : 'منشأة متخصصة في الأكل والشرب'),
+                role: role,
+                sector: sector,
+                sectorIcon: sectorIcons[sector] || '🏪',
+                displayName: username,
+                specialty: role === 'worker' ? 'طباخ' : '',
+                workerStatus: role === 'worker' ? 'available' : '',
+                location: null,
+                createdAt: new Date().toISOString()
+            });
+
+            showToast('🎉 تم التسجيل بنجاح! مرحباً ' + username, 'success');
+            
+            // المستخدم سيسجل دخوله تلقائياً عبر onAuthStateChanged
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
         }
-
-        const newUser = {
-            username: username,
-            password: password,
-            city: city,
-            role: role,
-            displayName: username,
-            specialty: role === 'worker' ? 'خباز تقليدي' : '',
-            bio: role === 'worker' ? 'أبحث عن فرصة عمل في مجال المخابز' : '',
-            workerStatus: role === 'worker' ? 'available' : '',
-            location: null,
-            createdAt: new Date().toISOString()
-        };
-
-        users.push(newUser);
-        setData('khbaz_users_final', users);
-
-        currentUser = newUser;
-        updateUI();
-        showToast('🎉 تم التسجيل بنجاح! مرحباً ' + username, 'success');
-
-        setTimeout(() => getLocation(), 1000);
     }
 
-    function login() {
+    async function login() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
 
@@ -1184,121 +1839,169 @@
             return;
         }
 
-        const user = users.find(u => u.username === username && u.password === password);
-
-        if (!user) {
-            const userExists = users.find(u => u.username === username);
-            if (userExists) {
+        try {
+            await signInWithEmailAndPassword(auth, username + '@khdma.app', password);
+            // المستخدم سيسجل دخوله تلقائياً عبر onAuthStateChanged
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                showToast('❌ هذا المستخدم غير موجود', 'error');
+                document.getElementById('loginUser').classList.add('input-error');
+            } else if (error.code === 'auth/wrong-password') {
                 showToast('❌ كلمة المرور غير صحيحة', 'error');
                 document.getElementById('loginPass').classList.add('input-error');
             } else {
-                showToast('❌ هذا المستخدم غير موجود', 'error');
-                document.getElementById('loginUser').classList.add('input-error');
+                showToast('❌ حدث خطأ: ' + error.message, 'error');
             }
-            return;
         }
-
-        currentUser = user;
-        showToast('👋 مرحباً ' + user.username + '!', 'success');
-        updateUI();
-
-        setTimeout(() => getLocation(), 1000);
     }
 
-    function logout() {
-        currentUser = null;
-        userLocation = null;
-        updateUI();
-        showToast('👋 تم تسجيل الخروج', '');
+    async function logout() {
+        try {
+            await signOut(auth);
+            showToast('👋 تم تسجيل الخروج', '');
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
     }
 
     // ============================================================
-    // 🖥️ تحديث الواجهة حسب الدور
+    // 🔄 تحميل جميع البيانات من Firestore
     // ============================================================
-    function updateUI() {
+    async function loadAllData() {
+        try {
+            // تحميل المستخدمين
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            allUsers = [];
+            usersSnapshot.forEach(doc => {
+                allUsers.push({ id: doc.id, ...doc.data() });
+            });
+
+            // تحميل الوظائف
+            const jobsSnapshot = await getDocs(collection(db, 'jobs'));
+            allJobs = [];
+            jobsSnapshot.forEach(doc => {
+                allJobs.push({ id: doc.id, ...doc.data() });
+            });
+
+            // تحميل الطلبات
+            const appsSnapshot = await getDocs(collection(db, 'applications'));
+            allApplications = [];
+            appsSnapshot.forEach(doc => {
+                allApplications.push({ id: doc.id, ...doc.data() });
+            });
+
+            // تحميل التقييمات
+            const reviewsSnapshot = await getDocs(collection(db, 'reviews'));
+            allReviews = [];
+            reviewsSnapshot.forEach(doc => {
+                allReviews.push({ id: doc.id, ...doc.data() });
+            });
+
+            // تحميل الرسائل
+            const messagesSnapshot = await getDocs(collection(db, 'messages'));
+            allMessages = [];
+            messagesSnapshot.forEach(doc => {
+                allMessages.push({ id: doc.id, ...doc.data() });
+            });
+
+            console.log('📦 تم تحميل البيانات:', {
+                users: allUsers.length,
+                jobs: allJobs.length,
+                applications: allApplications.length,
+                reviews: allReviews.length,
+                messages: allMessages.length
+            });
+
+        } catch (error) {
+            console.error('❌ خطأ في تحميل البيانات:', error);
+        }
+    }
+
+    // ============================================================
+    // 🔄 تحديث الواجهة حسب المستخدم
+    // ============================================================
+    function updateUI(userData) {
         const badge = document.getElementById('userBadge');
         const logoutBtn = document.getElementById('logoutBtn');
 
-        if (currentUser) {
+        if (userData) {
             badge.style.display = 'inline-flex';
-            badge.textContent = '👋 ' + (currentUser.displayName || currentUser.username);
+            badge.textContent = '👋 ' + (userData.displayName || userData.username);
             logoutBtn.style.display = 'inline-block';
             showScreen('mainScreen');
+            showLoading(false);
 
-            if (currentUser.role === 'owner') {
+            if (userData.role === 'owner') {
                 document.getElementById('ownerDashboard').classList.add('active');
                 document.getElementById('workerDashboard').classList.remove('active');
-                switchOwnerTab('jobs');
+                // تحميل الإعلانات
+                loadMyJobs();
+                // تحميل الطلبات
+                loadReceivedApplications();
+                // تحديث البحث عن المهنيين
+                searchWorkers();
             } else {
                 document.getElementById('workerDashboard').classList.add('active');
                 document.getElementById('ownerDashboard').classList.remove('active');
-                switchWorkerTab('jobs');
+                // تحميل الوظائف
+                searchJobsWorker();
+                // تحميل طلباتي
+                loadMyApplications();
+                // تحديث البحث عن المنشآت
+                searchOwners();
             }
         } else {
             badge.style.display = 'none';
             logoutBtn.style.display = 'none';
             showScreen('loginScreen');
+            showLoading(false);
         }
     }
 
     // ============================================================
-    // 📋 تبويبات صاحب الفرن
+    // 🔍 دوال الفلترة
     // ============================================================
-    function switchOwnerTab(tab) {
-        document.querySelectorAll('#ownerDashboard .tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('#ownerDashboard .tab-content').forEach(t => t.classList.remove('active'));
+    function filterOwnerWorkers(sector) {
+        ownerSectorFilter = sector;
+        document.querySelectorAll('#ownerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#ownerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchWorkers();
+    }
 
-        if (tab === 'jobs') {
-            document.querySelector('#ownerDashboard .tab:nth-child(1)').classList.add('active');
-            document.getElementById('ownerJobsTab').classList.add('active');
-            loadMyJobs();
-        } else if (tab === 'requests') {
-            document.querySelector('#ownerDashboard .tab:nth-child(2)').classList.add('active');
-            document.getElementById('ownerRequestsTab').classList.add('active');
-            loadReceivedApplications();
-        } else if (tab === 'workers') {
-            document.querySelector('#ownerDashboard .tab:nth-child(3)').classList.add('active');
-            document.getElementById('ownerWorkersTab').classList.add('active');
-            searchWorkers();
-        }
+    function filterWorkerJobs(sector) {
+        workerSectorFilter = sector;
+        document.querySelectorAll('#workerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#workerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchJobsWorker();
+    }
+
+    function filterWorkerOwners(sector) {
+        workerOwnerSectorFilter = sector;
+        document.querySelectorAll('#workerOwnerSectorFilter .filter-tag').forEach(t => t.classList.remove('active'));
+        document.querySelector(`#workerOwnerSectorFilter .filter-tag[data-sector="${sector}"]`).classList.add('active');
+        searchOwners();
     }
 
     // ============================================================
-    // 📋 تبويبات العامل
-    // ============================================================
-    function switchWorkerTab(tab) {
-        document.querySelectorAll('#workerDashboard .tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('#workerDashboard .tab-content').forEach(t => t.classList.remove('active'));
-
-        if (tab === 'jobs') {
-            document.querySelector('#workerDashboard .tab:nth-child(1)').classList.add('active');
-            document.getElementById('workerJobsTab').classList.add('active');
-            searchJobsWorker();
-        } else if (tab === 'applications') {
-            document.querySelector('#workerDashboard .tab:nth-child(2)').classList.add('active');
-            document.getElementById('workerApplicationsTab').classList.add('active');
-            loadMyApplications();
-        } else if (tab === 'owners') {
-            document.querySelector('#workerDashboard .tab:nth-child(3)').classList.add('active');
-            document.getElementById('workerOwnersTab').classList.add('active');
-            searchOwners();
-        }
-    }
-
-    // ============================================================
-    // 🔍 البحث عن عمال (لصاحب الفرن)
+    // 🔍 البحث عن مهنيين (لصاحب المنشأة)
     // ============================================================
     function searchWorkers() {
-        const query = document.getElementById('ownerSearchWorker').value.trim().toLowerCase();
+        const queryText = document.getElementById('ownerSearchWorker').value.trim().toLowerCase();
         const div = document.getElementById('workersList');
 
-        let workers = users.filter(u => u.role === 'worker');
+        let workers = allUsers.filter(u => u.role === 'worker');
 
-        if (query) {
+        if (ownerSectorFilter !== 'all') {
+            workers = workers.filter(u => u.sector === ownerSectorFilter);
+        }
+
+        if (queryText) {
             workers = workers.filter(u =>
-                u.displayName.toLowerCase().includes(query) ||
-                u.username.toLowerCase().includes(query) ||
-                (u.city && u.city.toLowerCase().includes(query))
+                u.displayName.toLowerCase().includes(queryText) ||
+                u.username.toLowerCase().includes(queryText) ||
+                (u.city && u.city.toLowerCase().includes(queryText)) ||
+                (u.specialty && u.specialty.toLowerCase().includes(queryText)) ||
+                (u.bio && u.bio.toLowerCase().includes(queryText))
             );
         }
 
@@ -1306,7 +2009,7 @@
             div.innerHTML = `
                 <div class="empty">
                     <span class="empty-icon">😅</span>
-                    ${query ? 'لا يوجد عمال مطابقين ل "' + query + '"' : 'لا يوجد عمال مسجلين حالياً'}
+                    ${queryText ? 'لا يوجد مهنيين مطابقين ل "' + queryText + '"' : 'لا يوجد مهنيين في هذا القطاع'}
                 </div>
             `;
             return;
@@ -1317,32 +2020,32 @@
             const isAvailable = worker.workerStatus !== 'not-available';
             const avgRating = calculateAverageRating(worker.username);
             const ratingCount = getRatingCount(worker.username);
-            const distance = userLocation && worker.location ?
-                calculateDistance(userLocation.lat, userLocation.lng, worker.location.lat, worker.location.lng) :
-                null;
 
             html += `
-                <div class="card card-worker">
+                <div class="card card-worker" onclick="viewProfile('${worker.username}')" style="cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <h4>${worker.displayName || worker.username}</h4>
                         <span class="status-badge ${isAvailable ? 'available' : 'normal'}">
                             ${isAvailable ? '🟢 متفرغ' : '🔴 مشغول'}
                         </span>
                     </div>
-                    <p>${worker.bio || 'أبحث عن فرصة عمل في مجال المخابز'}</p>
+                    <p>${worker.bio || 'مهني محترف في مجال الأكل والشرب'}</p>
                     <div class="meta">
                         <span>📍 ${worker.city || 'غير محدد'}</span>
-                        ${distance !== null ? `<span class="location-badge">📍 ${distance.toFixed(1)} كم</span>` : ''}
-                        <span class="badge">${worker.specialty || 'خباز'}</span>
+                        <span class="badge">${worker.specialty || 'مهني'}</span>
+                        <span class="sector-tag">${worker.sectorIcon || '🏪'} ${worker.sector || 'عام'}</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
                         ${renderStars(avgRating)}
                         <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
                     </div>
                     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <button class="btn btn-secondary btn-small" onclick="openRatingModal('${worker.username}')">
-                            ⭐ تقييم
-                        </button>
+                        <button class="btn btn-message-small btn-small" onclick="event.stopPropagation(); openMessageModal('${worker.username}')">💬 رسالة</button>
+                        ${worker.phone ? `
+                            <button class="btn btn-whatsapp btn-small" onclick="event.stopPropagation(); openWhatsApp('${worker.phone}')">💬 واتساب</button>
+                            <button class="btn btn-call btn-small" onclick="event.stopPropagation(); callNumber('${worker.phone}')">📞 اتصال</button>
+                        ` : ''}
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); openRatingModal('${worker.username}')">⭐ تقييم</button>
                     </div>
                 </div>
             `;
@@ -1351,19 +2054,25 @@
     }
 
     // ============================================================
-    // 🔍 البحث عن أفران (للعامل)
+    // 🔍 البحث عن منشآت (للمهني)
     // ============================================================
     function searchOwners() {
-        const query = document.getElementById('workerSearchOwner').value.trim().toLowerCase();
+        const queryText = document.getElementById('workerSearchOwner').value.trim().toLowerCase();
         const div = document.getElementById('ownersList');
 
-        let owners = users.filter(u => u.role === 'owner');
+        let owners = allUsers.filter(u => u.role === 'owner');
 
-        if (query) {
+        if (workerOwnerSectorFilter !== 'all') {
+            owners = owners.filter(u => u.sector === workerOwnerSectorFilter);
+        }
+
+        if (queryText) {
             owners = owners.filter(u =>
-                u.displayName.toLowerCase().includes(query) ||
-                u.username.toLowerCase().includes(query) ||
-                (u.city && u.city.toLowerCase().includes(query))
+                u.displayName.toLowerCase().includes(queryText) ||
+                u.username.toLowerCase().includes(queryText) ||
+                (u.city && u.city.toLowerCase().includes(queryText)) ||
+                (u.sector && u.sector.toLowerCase().includes(queryText)) ||
+                (u.bio && u.bio.toLowerCase().includes(queryText))
             );
         }
 
@@ -1371,7 +2080,7 @@
             div.innerHTML = `
                 <div class="empty">
                     <span class="empty-icon">😅</span>
-                    ${query ? 'لا توجد أفران مطابقة ل "' + query + '"' : 'لا توجد أفران مسجلة حالياً'}
+                    ${queryText ? 'لا توجد منشآت مطابقة ل "' + queryText + '"' : 'لا توجد منشآت في هذا القطاع'}
                 </div>
             `;
             return;
@@ -1379,28 +2088,28 @@
 
         let html = '';
         owners.forEach(owner => {
-            const ownerJobs = jobs.filter(j => j.ownerId === owner.username && j.status === 'مفتوح');
+            const ownerJobs = allJobs.filter(j => j.ownerId === owner.username && j.status === 'مفتوح');
             const hasUrgent = ownerJobs.some(j => j.urgency === 'urgent');
             const avgRating = calculateAverageRating(owner.username);
             const ratingCount = getRatingCount(owner.username);
-            const distance = userLocation && owner.location ?
-                calculateDistance(userLocation.lat, userLocation.lng, owner.location.lat, owner.location.lng) :
-                null;
+            const sectorDisplay = owner.sector ? owner.sector.replace(/_/g, ' ') : '';
 
             html += `
-                <div class="card card-owner">
+                <div class="card card-owner" onclick="viewProfile('${owner.username}')" style="cursor:pointer;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <h4>${owner.displayName || owner.username}</h4>
                         ${hasUrgent ?
-                            '<span class="status-badge urgent">🔴 محتاج عمال</span>' :
+                            '<span class="status-badge urgent">🔴 محتاج مهنيين</span>' :
                             ownerJobs.length > 0 ?
-                            '<span class="status-badge normal">🟡 يبحث عن عمال</span>' :
+                            '<span class="status-badge normal">🟡 يبحث عن مهنيين</span>' :
                             '<span class="status-badge normal">⚪ لا يبحث حالياً</span>'
                         }
                     </div>
+                    <div class="meta">
+                        <span class="sector-tag">${owner.sectorIcon || '🏪'} ${sectorDisplay || 'منشأة'}</span>
+                    </div>
                     <p>📍 ${owner.city || 'غير محدد'}</p>
                     <div class="meta">
-                        ${distance !== null ? `<span class="location-badge">📍 ${distance.toFixed(1)} كم</span>` : ''}
                         ${ownerJobs.length > 0 ? `<span class="badge">📋 ${ownerJobs.length} إعلان</span>` : ''}
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
@@ -1408,13 +2117,16 @@
                         <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
                     </div>
                     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-message-small btn-small" onclick="event.stopPropagation(); openMessageModal('${owner.username}')">💬 رسالة</button>
+                        ${owner.phone ? `
+                            <button class="btn btn-whatsapp btn-small" onclick="event.stopPropagation(); openWhatsApp('${owner.phone}')">💬 واتساب</button>
+                            <button class="btn btn-call btn-small" onclick="event.stopPropagation(); callNumber('${owner.phone}')">📞 اتصال</button>
+                        ` : ''}
                         ${ownerJobs.length > 0 ?
-                            `<button class="btn btn-primary btn-small" onclick="viewOwnerJobs('${owner.username}')">👀 عرض الوظائف</button>` :
+                            `<button class="btn btn-primary btn-small" onclick="event.stopPropagation(); viewOwnerJobs('${owner.username}')">👀 عرض الوظائف</button>` :
                             ''
                         }
-                        <button class="btn btn-secondary btn-small" onclick="openRatingModal('${owner.username}')">
-                            ⭐ تقييم
-                        </button>
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); openRatingModal('${owner.username}')">⭐ تقييم</button>
                     </div>
                 </div>
             `;
@@ -1430,23 +2142,24 @@
         const title = document.getElementById('modalTitle');
         const body = document.getElementById('modalBody');
 
-        const targetUser = users.find(u => u.username === targetUsername);
+        const targetUser = allUsers.find(u => u.username === targetUsername);
         if (!targetUser) {
             showToast('❌ المستخدم غير موجود', 'error');
             return;
         }
 
-        const existingReview = reviews.find(r =>
-            r.from === currentUser?.username && r.target === targetUsername
+        const existingReview = allReviews.find(r =>
+            r.from === currentUserData?.username && r.target === targetUsername
         );
         const currentRating = existingReview ? existingReview.rating : 0;
 
         title.textContent = `⭐ تقييم ${targetUser.displayName || targetUser.username}`;
         body.innerHTML = `
             <div style="text-align:center; margin-bottom:16px;">
-                <div style="font-size:48px; margin-bottom:8px;">${targetUser.role === 'owner' ? '🏪' : '👨‍🍳'}</div>
+                <div style="font-size:48px; margin-bottom:8px;">${targetUser.role === 'owner' ? (targetUser.sectorIcon || '🏪') : '🎯'}</div>
                 <h4 style="color:#4a2c1b;">${targetUser.displayName || targetUser.username}</h4>
                 <p style="color:#8b6b51; font-size:13px;">📍 ${targetUser.city || 'غير محدد'}</p>
+                ${targetUser.role === 'owner' && targetUser.sector ? `<p style="color:#8b6b51; font-size:13px;">🏷️ ${targetUser.sector.replace(/_/g, ' ')}</p>` : ''}
             </div>
             <div style="text-align:center; margin-bottom:16px;">
                 <label style="font-weight:600; color:#4a2c1b; display:block; margin-bottom:8px;">اختر عدد النجوم</label>
@@ -1522,10 +2235,10 @@
     }
 
     // ============================================================
-    // 📞 زر الاتصال (للتواصل عبر التعليقات)
+    // 📋 عرض الوظائف (للمهني)
     // ============================================================
     function viewOwnerJobs(username) {
-        const ownerJobs = jobs.filter(j => j.ownerId === username && j.status === 'مفتوح');
+        const ownerJobs = allJobs.filter(j => j.ownerId === username && j.status === 'مفتوح');
 
         if (ownerJobs.length === 0) {
             showToast('لا توجد وظائف متاحة حالياً', '');
@@ -1535,7 +2248,7 @@
         let msg = '📋 الوظائف المتاحة:\n\n';
         ownerJobs.forEach((j, i) => {
             msg += `${i+1}. ${j.title}\n`;
-            msg += `   📍 ${j.city} | 💰 ${j.salary}\n`;
+            msg += `   📍 ${j.city}\n`;
             msg += `   ${j.description}\n`;
             if (j.urgency === 'urgent') msg += '   🔴 عاجل!\n';
             msg += '\n';
@@ -1545,24 +2258,25 @@
     }
 
     // ============================================================
-    // 📋 وظائف صاحب الفرن
+    // 📋 وظائف صاحب المنشأة
     // ============================================================
-    function publishJobFromModal() {
-        if (!currentUser || currentUser.role !== 'owner') {
-            showToast('❌ فقط أصحاب الأفران يمكنهم نشر إعلانات', 'error');
+    async function publishJob() {
+        if (!currentUser || currentUserData.role !== 'owner') {
+            showToast('❌ فقط أصحاب المنشآت يمكنهم نشر إعلانات', 'error');
             return;
         }
 
+        const sector = document.getElementById('modalJobSector').value;
         const title = document.getElementById('modalJobTitle').value.trim();
         const desc = document.getElementById('modalJobDesc').value.trim();
         const city = document.getElementById('modalJobCity').value.trim();
-        const salary = document.getElementById('modalJobSalary').value.trim();
         const phone = document.getElementById('modalJobPhone').value.trim();
         const urgency = document.getElementById('modalJobUrgency').value;
 
         document.querySelectorAll('#modalBody .input-error').forEach(el => el.classList.remove('input-error'));
 
         let hasError = false;
+        if (!sector) { document.getElementById('modalJobSector').classList.add('input-error'); hasError = true; }
         if (!title) { document.getElementById('modalJobTitle').classList.add('input-error'); hasError = true; }
         if (!desc) { document.getElementById('modalJobDesc').classList.add('input-error'); hasError = true; }
         if (!city) { document.getElementById('modalJobCity').classList.add('input-error'); hasError = true; }
@@ -1573,33 +2287,33 @@
             return;
         }
 
-        const newJob = {
-            id: 'job_' + Date.now(),
-            ownerId: currentUser.username,
-            ownerName: currentUser.displayName || currentUser.username,
-            ownerPhone: phone,
-            title: title,
-            description: desc,
-            city: city,
-            salary: salary || 'غير محدد',
-            urgency: urgency,
-            status: 'مفتوح',
-            createdAt: new Date().toISOString()
-        };
+        try {
+            await addDoc(collection(db, 'jobs'), {
+                ownerId: currentUserData.username,
+                ownerName: currentUserData.displayName || currentUserData.username,
+                ownerPhone: phone,
+                sector: sector,
+                sectorIcon: document.querySelector('#modalJobSector option:checked').text.split(' ')[0] || '🏪',
+                title: title,
+                description: desc,
+                city: city,
+                urgency: urgency,
+                status: 'مفتوح',
+                createdAt: new Date().toISOString()
+            });
 
-        jobs.push(newJob);
-        setData('khbaz_jobs_final', jobs);
-
-        closeModal();
-        showToast('📢 تم نشر الإعلان بنجاح!', 'success');
-        loadMyJobs();
+            closeModal();
+            showToast('📢 تم نشر الإعلان بنجاح!', 'success');
+            await loadAllData();
+            loadMyJobs();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
     }
 
     function loadMyJobs() {
-        if (!currentUser) return;
         const div = document.getElementById('myJobsList');
-
-        const myJobs = jobs.filter(j => j.ownerId === currentUser.username);
+        const myJobs = allJobs.filter(j => j.ownerId === currentUserData.username);
 
         if (myJobs.length === 0) {
             div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>`;
@@ -1608,14 +2322,16 @@
 
         let html = '';
         myJobs.forEach(job => {
-            const applicants = applications.filter(a => a.jobId === job.id);
+            const applicants = allApplications.filter(a => a.jobId === job.id);
             html += `
                 <div class="card card-owner">
+                    <div class="meta">
+                        <span class="sector-tag">${job.sectorIcon || '🏪'} ${job.sector || 'منشأة'}</span>
+                    </div>
                     <h4>${job.title}</h4>
                     <p>${job.description}</p>
                     <div class="meta">
                         <span>📍 ${job.city}</span>
-                        <span>💰 ${job.salary}</span>
                         ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
                         <span class="badge ${job.status === 'مفتوح' ? 'badge-green' : 'badge-red'}">${job.status}</span>
                         <span class="badge">👥 ${applicants.length}</span>
@@ -1630,32 +2346,26 @@
         div.innerHTML = html;
     }
 
-    function closeJob(jobId) {
-        const job = jobs.find(j => j.id === jobId);
-        if (job) {
-            job.status = 'مغلق';
-            setData('khbaz_jobs_final', jobs);
+    async function closeJob(jobId) {
+        try {
+            const jobRef = doc(db, 'jobs', jobId);
+            await updateDoc(jobRef, { status: 'مغلق' });
             showToast('🔒 تم إغلاق الإعلان', '');
+            await loadAllData();
             loadMyJobs();
             loadReceivedApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
         }
     }
 
-    function refreshOwnerData() {
-        loadMyJobs();
-        loadReceivedApplications();
-        showToast('🔄 تم التحديث', '');
-    }
-
     // ============================================================
-    // 📩 طلبات وصلت لصاحب الفرن
+    // 📩 طلبات وصلت لصاحب المنشأة
     // ============================================================
     function loadReceivedApplications() {
-        if (!currentUser) return;
         const div = document.getElementById('receivedAppsList');
-
-        const myJobIds = jobs.filter(j => j.ownerId === currentUser.username).map(j => j.id);
-        const received = applications.filter(a => myJobIds.includes(a.jobId));
+        const myJobIds = allJobs.filter(j => j.ownerId === currentUserData.username).map(j => j.id);
+        const received = allApplications.filter(a => myJobIds.includes(a.jobId));
 
         if (received.length === 0) {
             div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>`;
@@ -1664,8 +2374,9 @@
 
         let html = '';
         received.forEach(app => {
-            const job = jobs.find(j => j.id === app.jobId);
+            const job = allJobs.find(j => j.id === app.jobId);
             const isAccepted = app.status === 'مقبول';
+            const worker = allUsers.find(u => u.username === app.workerId);
             html += `
                 <div class="card ${isAccepted ? 'card-accepted' : 'card-owner'}">
                     <h4>${app.workerName}</h4>
@@ -1675,16 +2386,21 @@
                         <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
                         <span>📅 ${new Date(app.appliedAt).toLocaleDateString('ar-MA')}</span>
                     </div>
-                    ${isAccepted && job ? `
+                    ${isAccepted && job && worker ? `
                         <div class="contact-info">
                             <div>
-                                <div class="owner-name">🏪 ${job.ownerName}</div>
-                                <div class="owner-phone">📱 ${job.ownerPhone || 'رقم غير متوفر'}</div>
+                                <div class="owner-name">🎯 ${worker.displayName || worker.username}</div>
+                                <div class="owner-phone">📱 ${worker.phone || 'رقم غير متوفر'}</div>
                             </div>
-                            ${job.ownerPhone ? `
-                                <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
-                                    📞 اتصل
-                                </button>
+                            ${worker.phone ? `
+                                <div class="contact-buttons">
+                                    <button class="btn-whatsapp-small" onclick="openWhatsApp('${worker.phone}')">
+                                        💬 واتساب
+                                    </button>
+                                    <button class="btn-call-small" onclick="callNumber('${worker.phone}')">
+                                        📞 اتصال
+                                    </button>
+                                </div>
                             ` : ''}
                         </div>
                     ` : `
@@ -1699,48 +2415,44 @@
         div.innerHTML = html;
     }
 
-    function acceptApplication(appId) {
-        const app = applications.find(a => a.id === appId);
-        if (app) {
-            app.status = 'مقبول';
-            setData('khbaz_applications_final', applications);
+    async function acceptApplication(appId) {
+        try {
+            const appRef = doc(db, 'applications', appId);
+            await updateDoc(appRef, { status: 'مقبول' });
             showToast('✅ تم قبول الطلب!', 'success');
+            await loadAllData();
             loadReceivedApplications();
             loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
         }
     }
 
-    function rejectApplication(appId) {
-        const app = applications.find(a => a.id === appId);
-        if (app) {
-            app.status = 'مرفوض';
-            setData('khbaz_applications_final', applications);
+    async function rejectApplication(appId) {
+        try {
+            const appRef = doc(db, 'applications', appId);
+            await updateDoc(appRef, { status: 'مرفوض' });
             showToast('❌ تم رفض الطلب', '');
+            await loadAllData();
             loadReceivedApplications();
             loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
         }
     }
 
     // ============================================================
-    // 📞 زر الاتصال
-    // ============================================================
-    function callNumber(phoneNumber) {
-        if (!phoneNumber) {
-            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
-            return;
-        }
-        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '');
-        window.location.href = 'tel:' + cleanNumber;
-    }
-
-    // ============================================================
-    // 🔍 وظائف العامل
+    // 🔍 وظائف المهني مع فلترة القطاع
     // ============================================================
     function searchJobsWorker() {
         const city = document.getElementById('searchCityWorker').value.trim();
         const div = document.getElementById('jobsResults');
 
-        let filtered = jobs.filter(j => j.status === 'مفتوح');
+        let filtered = allJobs.filter(j => j.status === 'مفتوح');
+
+        if (workerSectorFilter !== 'all') {
+            filtered = filtered.filter(j => j.sector === workerSectorFilter);
+        }
 
         if (city) {
             filtered = filtered.filter(j => j.city.toLowerCase().includes(city.toLowerCase()));
@@ -1750,7 +2462,7 @@
             div.innerHTML = `
                 <div class="empty">
                     <span class="empty-icon">😅</span>
-                    ${city ? 'لا توجد وظائف في "' + city + '"' : 'لا توجد وظائف متاحة حالياً'}
+                    ${city ? 'لا توجد وظائف في "' + city + '"' : 'لا توجد وظائف في هذا القطاع'}
                 </div>
             `;
             return;
@@ -1758,22 +2470,25 @@
 
         let html = '';
         filtered.forEach(job => {
-            const applied = applications.some(a =>
-                a.jobId === job.id && a.workerId === currentUser?.username
+            const applied = allApplications.some(a =>
+                a.jobId === job.id && a.workerId === currentUserData?.username
             );
 
-            const applicantsCount = applications.filter(a => a.jobId === job.id).length;
+            const applicantsCount = allApplications.filter(a => a.jobId === job.id).length;
 
-            const ownerAvgRating = calculateAverageRating(job.ownerId);
-            const ownerRatingCount = getRatingCount(job.ownerId);
+            const owner = allUsers.find(u => u.username === job.ownerId);
+            const ownerAvgRating = owner ? calculateAverageRating(owner.username) : 0;
+            const ownerRatingCount = owner ? getRatingCount(owner.username) : 0;
 
             html += `
-                <div class="card card-worker">
+                <div class="card card-worker" onclick="viewProfile('${job.ownerId}')" style="cursor:pointer;">
+                    <div class="meta">
+                        <span class="sector-tag">${job.sectorIcon || '🏪'} ${job.sector || 'منشأة'}</span>
+                    </div>
                     <h4>${job.title}</h4>
                     <p>${job.description}</p>
                     <div class="meta">
                         <span>📍 ${job.city}</span>
-                        <span>💰 ${job.salary}</span>
                         ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
                         <span class="badge">👥 ${applicantsCount}</span>
                     </div>
@@ -1784,7 +2499,7 @@
                     </div>
                     ${applied ?
                         '<span class="badge badge-green">✅ تم التقديم</span>' :
-                        `<button class="btn btn-success btn-small" style="margin-top:8px;" onclick="applyForJob('${job.id}')">📩 تقدم للوظيفة</button>`
+                        `<button class="btn btn-success btn-small" style="margin-top:8px;" onclick="event.stopPropagation(); applyForJob('${job.id}')">📩 تقدم للوظيفة</button>`
                     }
                 </div>
             `;
@@ -1792,45 +2507,47 @@
         div.innerHTML = html;
     }
 
-    function applyForJob(jobId) {
+    async function applyForJob(jobId) {
         if (!currentUser) {
             showToast('❌ يجب تسجيل الدخول أولاً', 'error');
             return;
         }
 
-        if (currentUser.role !== 'worker') {
-            showToast('❌ فقط العمال يمكنهم التقدم للوظائف', 'error');
+        if (currentUserData.role !== 'worker') {
+            showToast('❌ فقط المهنيين يمكنهم التقدم للوظائف', 'error');
             return;
         }
 
-        if (applications.some(a => a.jobId === jobId && a.workerId === currentUser.username)) {
+        if (allApplications.some(a => a.jobId === jobId && a.workerId === currentUserData.username)) {
             showToast('⚠️ لقد تقدمت لهذه الوظيفة مسبقاً', 'error');
             return;
         }
 
-        applications.push({
-            id: 'app_' + Date.now(),
-            jobId: jobId,
-            workerId: currentUser.username,
-            workerName: currentUser.displayName || currentUser.username,
-            status: 'قيد المراجعة',
-            appliedAt: new Date().toISOString()
-        });
-        setData('khbaz_applications_final', applications);
+        try {
+            await addDoc(collection(db, 'applications'), {
+                jobId: jobId,
+                workerId: currentUserData.username,
+                workerName: currentUserData.displayName || currentUserData.username,
+                status: 'قيد المراجعة',
+                appliedAt: new Date().toISOString()
+            });
 
-        showToast('✅ تم التقديم بنجاح!', 'success');
-        searchJobsWorker();
-        loadMyApplications();
+            showToast('✅ تم التقديم بنجاح!', 'success');
+            await loadAllData();
+            searchJobsWorker();
+            loadMyApplications();
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
     }
 
     // ============================================================
-    // 📩 طلباتي (للعامل)
+    // 📩 طلباتي (للمهني)
     // ============================================================
     function loadMyApplications() {
-        if (!currentUser) return;
         const div = document.getElementById('myApplicationsList');
 
-        const myApps = applications.filter(a => a.workerId === currentUser.username);
+        const myApps = allApplications.filter(a => a.workerId === currentUserData.username);
 
         if (myApps.length === 0) {
             div.innerHTML = `
@@ -1845,7 +2562,7 @@
 
         let html = '';
         myApps.forEach(app => {
-            const job = jobs.find(j => j.id === app.jobId);
+            const job = allJobs.find(j => j.id === app.jobId);
             const isAccepted = app.status === 'مقبول';
             html += `
                 <div class="card ${isAccepted ? 'card-accepted' : 'card-worker'}">
@@ -1853,7 +2570,6 @@
                     <p>${job ? job.description : ''}</p>
                     <div class="meta">
                         <span>📍 ${job ? job.city : ''}</span>
-                        <span>💰 ${job ? job.salary : ''}</span>
                         <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
                     </div>
                     <div style="margin-top:6px; font-size:12px; color:#8b6b51;">
@@ -1862,13 +2578,18 @@
                     ${isAccepted && job ? `
                         <div class="contact-info">
                             <div>
-                                <div class="owner-name">🏪 ${job.ownerName || 'صاحب الفرن'}</div>
+                                <div class="owner-name">🏪 ${job.ownerName || 'صاحب المنشأة'}</div>
                                 <div class="owner-phone">📱 ${job.ownerPhone || 'رقم غير متوفر'}</div>
                             </div>
                             ${job.ownerPhone ? `
-                                <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
-                                    📞 اتصل بالفرن
-                                </button>
+                                <div class="contact-buttons">
+                                    <button class="btn-whatsapp-small" onclick="openWhatsApp('${job.ownerPhone}')">
+                                        💬 واتساب
+                                    </button>
+                                    <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
+                                        📞 اتصال
+                                    </button>
+                                </div>
                             ` : ''}
                         </div>
                     ` : ''}
@@ -1879,211 +2600,122 @@
     }
 
     // ============================================================
-    // 📝 تحديث ملف العامل (من النافذة المنبثقة)
+    // 📝 تحديث ملف المهني
     // ============================================================
-    function updateProfileFromModal() {
-        if (!currentUser || currentUser.role !== 'worker') {
-            showToast('❌ فقط العمال يمكنهم تحديث ملفهم', 'error');
+    async function updateProfile() {
+        if (!currentUser || currentUserData.role !== 'worker') {
+            showToast('❌ فقط المهنيين يمكنهم تحديث ملفهم', 'error');
             return;
         }
 
         const specialty = document.getElementById('modalWorkerSpecialty').value;
         const bio = document.getElementById('modalWorkerBio').value.trim();
         const status = document.getElementById('modalWorkerStatus').value;
+        const phone = document.getElementById('modalWorkerPhone').value.trim();
 
-        const userIndex = users.findIndex(u => u.username === currentUser.username);
-        if (userIndex !== -1) {
-            users[userIndex].specialty = specialty;
-            users[userIndex].bio = bio || 'أبحث عن فرصة عمل في مجال المخابز';
-            users[userIndex].workerStatus = status;
-            setData('khbaz_users_final', users);
-            currentUser = users[userIndex];
-            closeModal();
+        try {
+            const userRef = doc(db, 'users', currentUser.uid);
+            await updateDoc(userRef, {
+                specialty: specialty,
+                bio: bio || 'مهني محترف في مجال الأكل والشرب',
+                workerStatus: status,
+                phone: phone || currentUserData.phone
+            });
+
             showToast('✅ تم تحديث ملفك المهني بنجاح!', 'success');
-        }
-    }
-
-    // ============================================================
-    // 📏 حساب المسافة
-    // ============================================================
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
-
-    // ============================================================
-    // 📦 بيانات تجريبية
-    // ============================================================
-    function initDemoData() {
-        if (users.length === 0) {
-            const demoUsers = [
-                {
-                    username: 'فرن_الدار',
-                    password: '1234',
-                    city: 'الدار البيضاء',
-                    role: 'owner',
-                    displayName: 'فرن الدار البيضاء',
-                    location: { lat: 33.5731, lng: -7.5898 },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    username: 'فرن_مراكش',
-                    password: '1234',
-                    city: 'مراكش',
-                    role: 'owner',
-                    displayName: 'فرن مراكش التقليدي',
-                    location: { lat: 31.6295, lng: -7.9811 },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    username: 'خباز_محمد',
-                    password: '1234',
-                    city: 'الدار البيضاء',
-                    role: 'worker',
-                    displayName: 'محمد الخباز',
-                    specialty: 'خباز تقليدي',
-                    bio: 'خبرة 5 سنوات في الخبز التقليدي',
-                    workerStatus: 'available',
-                    location: { lat: 33.5800, lng: -7.6000 },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    username: 'عجان_أحمد',
-                    password: '1234',
-                    city: 'مراكش',
-                    role: 'worker',
-                    displayName: 'أحمد العجان',
-                    specialty: 'عجان',
-                    bio: 'خبرة 3 سنوات في العجن والتشكيل',
-                    workerStatus: 'available',
-                    location: { lat: 31.6400, lng: -7.9900 },
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    username: 'خبازة_فاطمة',
-                    password: '1234',
-                    city: 'الدار البيضاء',
-                    role: 'worker',
-                    displayName: 'فاطمة الخبازة',
-                    specialty: 'خبازة تقليدية',
-                    bio: 'خبرة 7 سنوات في الخبز التقليدي والحلويات',
-                    workerStatus: 'available',
-                    location: { lat: 33.5600, lng: -7.5800 },
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            users = demoUsers;
-            setData('khbaz_users_final', users);
-        }
-
-        if (jobs.length === 0) {
-            const demoJobs = [
-                {
-                    id: 'demo_1',
-                    ownerId: 'فرن_الدار',
-                    ownerName: 'فرن الدار البيضاء',
-                    ownerPhone: '0612345678',
-                    title: 'مطلوب خباز تقليدي',
-                    description: 'خبز على الطريقة التقليدية، خبرة 3 سنوات على الأقل',
-                    city: 'الدار البيضاء',
-                    salary: '2500 درهم',
-                    urgency: 'normal',
-                    status: 'مفتوح',
-                    createdAt: new Date(Date.now() - 3600000).toISOString()
-                },
-                {
-                    id: 'demo_2',
-                    ownerId: 'فرن_مراكش',
-                    ownerName: 'فرن مراكش التقليدي',
-                    ownerPhone: '0612345679',
-                    title: '🔴 عاجل: مطلوب عجان',
-                    description: 'العجن والتشكيل لأفران آلية، دوام كامل من الساعة 5 صباحاً',
-                    city: 'مراكش',
-                    salary: '3000 درهم',
-                    urgency: 'urgent',
-                    status: 'مفتوح',
-                    createdAt: new Date(Date.now() - 7200000).toISOString()
-                },
-                {
-                    id: 'demo_3',
-                    ownerId: 'فرن_الدار',
-                    ownerName: 'فرن الدار البيضاء',
-                    ownerPhone: '0612345678',
-                    title: 'مطلوب مساعد خباز',
-                    description: 'مساعدة في تجهيز العجين وتنظيف الأدوات',
-                    city: 'الدار البيضاء',
-                    salary: '2000 درهم',
-                    urgency: 'normal',
-                    status: 'مفتوح',
-                    createdAt: new Date(Date.now() - 18000000).toISOString()
-                }
-            ];
-            jobs = demoJobs;
-            setData('khbaz_jobs_final', jobs);
-        }
-
-        if (reviews.length === 0) {
-            const demoReviews = [
-                {
-                    id: 'rev_1',
-                    from: 'خباز_محمد',
-                    target: 'فرن_الدار',
-                    rating: 4,
-                    date: new Date(Date.now() - 86400000).toISOString()
-                },
-                {
-                    id: 'rev_2',
-                    from: 'عجان_أحمد',
-                    target: 'فرن_مراكش',
-                    rating: 5,
-                    date: new Date(Date.now() - 172800000).toISOString()
-                },
-                {
-                    id: 'rev_3',
-                    from: 'فرن_الدار',
-                    target: 'خباز_محمد',
-                    rating: 5,
-                    date: new Date(Date.now() - 259200000).toISOString()
-                }
-            ];
-            reviews = demoReviews;
-            setData('khbaz_reviews', reviews);
-        }
-    }
-
-    // ============================================================
-    // 🚀 بدء التطبيق
-    // ============================================================
-    initDemoData();
-    updateUI();
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            const activeScreen = document.querySelector('.screen.active');
-            if (activeScreen) {
-                if (activeScreen.id === 'loginScreen') {
-                    login();
-                } else if (activeScreen.id === 'registerScreen') {
-                    register();
-                }
-            }
-        }
-        if (e.key === 'Escape') {
             closeModal();
+            await loadAllData();
+            currentUserData = allUsers.find(u => u.username === currentUserData.username);
+            updateUI(currentUserData);
+        } catch (error) {
+            showToast('❌ حدث خطأ: ' + error.message, 'error');
+        }
+    }
+
+    // ============================================================
+    // 🔄 مراقبة حالة تسجيل الدخول
+    // ============================================================
+    onAuthStateChanged(auth, async (user) => {
+        showLoading(true);
+        
+        if (user) {
+            try {
+                // جلب بيانات المستخدم من Firestore
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                if (userDoc.exists()) {
+                    currentUser = user;
+                    currentUserData = { id: user.uid, ...userDoc.data() };
+                    
+                    // تحميل جميع البيانات
+                    await loadAllData();
+                    
+                    // تحديث الواجهة
+                    updateUI(currentUserData);
+                } else {
+                    // المستخدم موجود في Auth ولكن ليس في Firestore
+                    await signOut(auth);
+                    showToast('⚠️ حدث خطأ في البيانات، حاول مرة أخرى', 'error');
+                    showLoading(false);
+                }
+            } catch (error) {
+                console.error('❌ خطأ في جلب البيانات:', error);
+                showToast('❌ حدث خطأ: ' + error.message, 'error');
+                showLoading(false);
+            }
+        } else {
+            currentUser = null;
+            currentUserData = null;
+            updateUI(null);
+            showLoading(false);
         }
     });
 
-    console.log('🍞 تطبيق خباز - النسخة الكاملة بدون رقم هاتف');
-    console.log('👥 المستخدمين:', users.length);
-    console.log('📋 الوظائف:', jobs.length);
-    console.log('📩 الطلبات:', applications.length);
-    console.log('⭐ التقييمات:', reviews.length);
+    // ============================================================
+    // 🚀 جعل الدوال عالمية للوصول من HTML
+    // ============================================================
+    window.showScreen = showScreen;
+    window.showToast = showToast;
+    window.selectRegRole = selectRegRole;
+    window.getSelectedRegRole = getSelectedRegRole;
+    window.register = register;
+    window.login = login;
+    window.logout = logout;
+    window.openModal = openModal;
+    window.closeModal = closeModal;
+    window.publishJob = publishJob;
+    window.loadMyJobs = loadMyJobs;
+    window.closeJob = closeJob;
+    window.loadReceivedApplications = loadReceivedApplications;
+    window.acceptApplication = acceptApplication;
+    window.rejectApplication = rejectApplication;
+    window.searchJobsWorker = searchJobsWorker;
+    window.applyForJob = applyForJob;
+    window.loadMyApplications = loadMyApplications;
+    window.searchWorkers = searchWorkers;
+    window.searchOwners = searchOwners;
+    window.viewProfile = viewProfile;
+    window.viewMyProfile = viewMyProfile;
+    window.closeProfileModal = closeProfileModal;
+    window.openMessageModal = openMessageModal;
+    window.closeMessageModal = closeMessageModal;
+    window.sendMessage = sendMessage;
+    window.openWhatsApp = openWhatsApp;
+    window.callNumber = callNumber;
+    window.openRatingModal = openRatingModal;
+    window.setRating = setRating;
+    window.hoverRating = hoverRating;
+    window.resetRating = resetRating;
+    window.submitRating = submitRating;
+    window.rateUser = rateUser;
+    window.viewOwnerJobs = viewOwnerJobs;
+    window.filterOwnerWorkers = filterOwnerWorkers;
+    window.filterWorkerJobs = filterWorkerJobs;
+    window.filterWorkerOwners = filterWorkerOwners;
+    window.updateProfile = updateProfile;
+
+    console.log('🥖🍽️ تطبيق خدمة - متصل بـ Firebase');
+    console.log('🔥 Firebase Status: متصل');
+    console.log('📦 جاهز للاستخدام!');
 </script>
 
 </body>
