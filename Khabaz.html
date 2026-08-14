@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>خبّاز - منصة المخابز</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f8efe8 0%, #f0e0d0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .app {
+            max-width: 450px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 36px;
+            padding: 24px 20px 30px;
+            box-shadow: 0 25px 70px rgba(74, 44, 27, 0.15);
+            border: 1px solid rgba(192, 114, 58, 0.05);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .logo { display: flex; align-items: center; gap: 8px; }
+        .logo-icon { font-size: 34px; }
+        .logo-text {
+            font-size: 26px;
+            font-weight: 800;
+            color: #3d2415;
+            letter-spacing: -0.5px;
+        }
+        .logo-text span { color: #b8652e; }
+
+        .header-right { display: flex; align-items: center; gap: 8px; }
+
+        .user-badge {
+            background: #fef3e7;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            color: #4a2c1b;
+            font-weight: 600;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #f0dcc8;
+        }
+
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #b8652e;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+            padding: 6px 10px;
+            border-radius: 50%;
+            transition: 0.2s;
+            background: #fdf6ed;
+        }
+        .btn-logout:hover { background: #f5e6d3; }
+
+        .subtitle {
+            text-align: center;
+            color: #8b6b51;
+            font-size: 13px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid #f0e0d0;
+        }
+
+        .screen { display: none; animation: fadeUp 0.35s ease; }
+        .screen.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #4a2c1b;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e8ddd2;
+            border-radius: 16px;
+            font-size: 15px;
+            background: #faf7f4;
+            outline: none;
+            transition: 0.25s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #b8652e;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(184, 101, 46, 0.08);
+        }
+        .form-group textarea { resize: vertical; min-height: 65px; }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 40px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.25s;
+            margin-top: 4px;
+            width: 100%;
+        }
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: #b8652e;
+            color: white;
+            box-shadow: 0 4px 18px rgba(184, 101, 46, 0.3);
+        }
+        .btn-primary:hover { background: #a3541e; }
+
+        .btn-secondary {
+            background: transparent;
+            color: #b8652e;
+            border: 2px solid #b8652e;
+        }
+        .btn-secondary:hover { background: #fdf3ea; }
+
+        .btn-success {
+            background: #2d8f4e;
+            color: white;
+            box-shadow: 0 4px 18px rgba(45, 143, 78, 0.25);
+        }
+        .btn-success:hover { background: #1e6b38; }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-call {
+            background: #25D366;
+            color: white;
+            box-shadow: 0 4px 18px rgba(37, 211, 102, 0.3);
+        }
+        .btn-call:hover { background: #1da851; }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+            width: auto;
+            margin-top: 0;
+            border-radius: 30px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .btn-row .btn { width: auto; flex: 1; }
+
+        .role-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .role-card {
+            flex: 1;
+            padding: 16px 10px;
+            border: 3px solid #e8ddd2;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #faf7f4;
+        }
+        .role-card:hover { transform: translateY(-2px); }
+        .role-card.active {
+            border-color: #b8652e;
+            background: #fdf3ea;
+            box-shadow: 0 4px 20px rgba(184, 101, 46, 0.15);
+        }
+        .role-card .icon { font-size: 36px; display: block; }
+        .role-card .label {
+            font-weight: 700;
+            color: #4a2c1b;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+        .role-card .desc {
+            font-size: 12px;
+            color: #8b6b51;
+            margin-top: 2px;
+        }
+        .role-card .check {
+            display: none;
+            color: #2d8f4e;
+            font-size: 18px;
+            margin-top: 4px;
+        }
+        .role-card.active .check { display: block; }
+
+        .card {
+            background: #faf7f4;
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: 12px;
+            border: 1px solid #f0e0d0;
+            transition: 0.25s;
+            position: relative;
+        }
+        .card:hover { transform: translateX(-3px); }
+
+        .card-owner {
+            border-right: 4px solid #b8652e;
+            background: #fdf8f3;
+        }
+
+        .card-worker {
+            border-right: 4px solid #2d8f4e;
+            background: #f3faf5;
+        }
+
+        .card-accepted {
+            border-right: 4px solid #25D366;
+            background: #f0faf3;
+        }
+
+        .card h4 {
+            color: #3d2415;
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+        .card p {
+            color: #6e5543;
+            font-size: 14px;
+            margin: 3px 0;
+            line-height: 1.5;
+        }
+        .card .meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+            align-items: center;
+        }
+
+        .badge {
+            background: #e8ddd2;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #4a2c1b;
+            display: inline-block;
+            font-weight: 600;
+        }
+        .badge-green { background: #d4edda; color: #155724; }
+        .badge-red { background: #f8d7da; color: #721c24; }
+        .badge-gold { background: #fef3cd; color: #856404; }
+        .badge-accepted { background: #25D366; color: white; }
+
+        .status-badge {
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .status-badge.urgent {
+            background: #e74c3c;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        .status-badge.available {
+            background: #2d8f4e;
+            color: white;
+        }
+        .status-badge.normal {
+            background: #f0e0d0;
+            color: #4a2c1b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .empty {
+            text-align: center;
+            color: #b0957e;
+            padding: 32px 10px;
+            font-size: 15px;
+        }
+        .empty-icon { font-size: 48px; display: block; margin-bottom: 8px; }
+
+        .toast {
+            background: #3d2415;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 14px;
+            display: none;
+            font-weight: 600;
+            font-size: 15px;
+            animation: slideDown 0.3s ease;
+        }
+        .toast.success { background: #2d8f4e; }
+        .toast.error { background: #c0392b; }
+        .toast.info { background: #1a73e8; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 14px 0;
+            color: #b0957e;
+            font-size: 12px;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e8ddd2;
+        }
+        .divider::before { margin-left: 12px; }
+        .divider::after { margin-right: 12px; }
+
+        .btn-back {
+            background: none;
+            border: none;
+            color: #b8652e;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            padding: 4px 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .hero-icon { font-size: 52px; display: block; margin-bottom: 2px; }
+        .hero-text { color: #8b6b51; font-size: 14px; }
+
+        .flex { display: flex; gap: 10px; }
+        .flex .btn { width: auto; flex: 1; }
+        .hidden { display: none !important; }
+
+        .input-error {
+            border-color: #e74c3c !important;
+            background: #fdf2f2 !important;
+        }
+
+        .field-hint {
+            font-size: 12px;
+            color: #b0957e;
+            margin-top: 4px;
+        }
+
+        .owner-dashboard { display: none; }
+        .owner-dashboard.active { display: block; }
+
+        .worker-dashboard { display: none; }
+        .worker-dashboard.active { display: block; }
+
+        .section-title {
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title.owner {
+            background: #fdf3ea;
+            border: 1px solid #f0dcc8;
+            color: #4a2c1b;
+        }
+        .section-title.worker {
+            background: #f3faf5;
+            border: 1px solid #d4edda;
+            color: #155724;
+        }
+
+        /* ====== التقييم ====== */
+        .rating {
+            display: flex;
+            gap: 4px;
+            direction: ltr;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .rating .star {
+            color: #ddd;
+            transition: 0.2s;
+        }
+        .rating .star.active {
+            color: #f5a623;
+        }
+        .rating .star:hover {
+            transform: scale(1.2);
+        }
+        .rating-display {
+            display: flex;
+            gap: 3px;
+            direction: ltr;
+            font-size: 18px;
+        }
+        .rating-display .star {
+            color: #f5a623;
+        }
+        .rating-display .star.empty {
+            color: #ddd;
+        }
+
+        /* ====== معلومات الاتصال ====== */
+        .contact-info {
+            background: #f0faf3;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            border: 1px solid #d4edda;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .contact-info .owner-name {
+            font-weight: 700;
+            color: #155724;
+            font-size: 14px;
+        }
+        .contact-info .owner-phone {
+            color: #2d8f4e;
+            font-size: 14px;
+            direction: ltr;
+        }
+        .contact-info .btn-call-small {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .contact-info .btn-call-small:hover {
+            background: #1da851;
+            transform: scale(1.02);
+        }
+
+        /* ====== النافذة المنبثقة ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            animation: fadeInOverlay 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 24px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUpModal 0.3s ease;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideUpModal {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0e0d0;
+        }
+        .modal-header h3 {
+            color: #4a2c1b;
+            font-size: 20px;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #8b6b51;
+            padding: 0 8px;
+            transition: 0.2s;
+        }
+        .modal-close:hover { color: #e74c3c; }
+
+        /* ====== التبويبات ====== */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            flex: 1;
+            padding: 10px 8px;
+            border: 2px solid #e8ddd2;
+            border-radius: 14px;
+            background: white;
+            color: #8b6b51;
+            font-weight: 700;
+            font-size: 13px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.25s;
+            min-width: 60px;
+        }
+        .tab.active {
+            border-color: #b8652e;
+            background: #fdf3ea;
+            color: #a3541e;
+        }
+        .tab:active { transform: scale(0.96); }
+        .tab.worker-tab.active {
+            border-color: #2d8f4e;
+            background: #f3faf5;
+            color: #155724;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ====== موقع ====== */
+        .location-badge {
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .location-badge .icon { font-size: 14px; }
+
+        .btn-location {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-location:hover { background: #1557b0; }
+
+        @media (max-width: 400px) {
+            .app { padding: 18px 14px; }
+            .logo-text { font-size: 22px; }
+            .btn { font-size: 15px; padding: 14px; }
+            .role-card { padding: 12px 8px; }
+            .role-card .icon { font-size: 28px; }
+            .modal-content { padding: 20px 16px; }
+            .tab { font-size: 11px; padding: 8px 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app" id="app">
+    <!-- ====== الهيدر ====== -->
+    <div class="header">
+        <div class="logo">
+            <span class="logo-icon">🥖</span>
+            <span class="logo-text">خب<span>ّ</span>از</span>
+        </div>
+        <div class="header-right">
+            <span class="user-badge" id="userBadge">👋 أحمد</span>
+            <button class="btn-logout" id="logoutBtn" onclick="logout()" title="تسجيل خروج">🚪</button>
+        </div>
+    </div>
+    <div class="subtitle">🏪 منصة التوظيف الأولى لأصحاب المخابز والعمال</div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- ====== شاشة تسجيل الدخول ====== -->
+    <div class="screen active" id="loginScreen">
+        <div class="hero">
+            <span class="hero-icon">🍞</span>
+            <div class="hero-text">سجل دخولك للوصول إلى منصة التوظيف</div>
+        </div>
+
+        <div style="background:#f0e0d0; border-radius:16px; padding:12px; margin-bottom:16px; text-align:center; font-size:13px; color:#4a2c1b;">
+            <strong>🔑 مستخدمين تجريبيين:</strong><br>
+            🏪 <strong>فرن_الدار</strong> / <strong>1234</strong> &nbsp;|&nbsp; 👨‍🍳 <strong>خباز_محمد</strong> / <strong>1234</strong>
+        </div>
+
+        <div class="form-group">
+            <label>👤 اسم المستخدم</label>
+            <input type="text" id="loginUser" placeholder="أدخل اسم المستخدم" autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>🔒 كلمة المرور</label>
+            <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary" onclick="login()">🚀 دخول</button>
+
+        <div class="divider">ليس لديك حساب؟</div>
+
+        <button class="btn btn-secondary" onclick="showScreen('registerScreen')">📝 إنشاء حساب جديد</button>
+    </div>
+
+    <!-- ====== شاشة التسجيل ====== -->
+    <div class="screen" id="registerScreen">
+        <button class="btn-back" onclick="showScreen('loginScreen')">← رجوع</button>
+
+        <div class="hero">
+            <span class="hero-icon">👨‍🍳</span>
+            <div class="hero-text">أنشئ حسابك واختر دورك</div>
+        </div>
+
+        <div class="role-selector">
+            <div class="role-card active" id="regRoleWorker" onclick="selectRegRole('worker')">
+                <span class="icon">👨‍🍳</span>
+                <div class="label">عامل</div>
+                <div class="desc">أبحث عن عمل</div>
+                <span class="check">✅</span>
+            </div>
+            <div class="role-card" id="regRoleOwner" onclick="selectRegRole('owner')">
+                <span class="icon">🏪</span>
+                <div class="label">صاحب فرن</div>
+                <div class="desc">أبحث عن عمال</div>
+                <span class="check">✅</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>👤 اسم المستخدم <span style="color:#b8652e;">*</span></label>
+            <input type="text" id="regUser" placeholder="أدخل اسماً فريداً" autocomplete="username">
+        </div>
+        <div class="form-group">
+            <label>🔒 كلمة المرور <span style="color:#b8652e;">*</span></label>
+            <input type="password" id="regPass" placeholder="4 أحرف على الأقل" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <label>📍 المدينة <span style="color:#b8652e;">*</span></label>
+            <input type="text" id="regCity" placeholder="الدار البيضاء، مراكش..." autocomplete="address-level2">
+        </div>
+
+        <button class="btn btn-primary" onclick="register()">✅ إنشاء حساب</button>
+        <button class="btn btn-secondary" onclick="showScreen('loginScreen')">🔙 لدي حساب بالفعل</button>
+    </div>
+
+    <!-- ====== اللوحة الرئيسية ====== -->
+    <div class="screen" id="mainScreen">
+
+        <!-- ====== واجهة صاحب الفرن ====== -->
+        <div class="owner-dashboard active" id="ownerDashboard">
+            <div class="section-title owner">🏪 لوحة صاحب الفرن</div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchOwnerTab('jobs')">📋 إعلاناتي</div>
+                <div class="tab" onclick="switchOwnerTab('requests')">📩 طلباتي</div>
+                <div class="tab" onclick="switchOwnerTab('workers')">👨‍🍳 عمال</div>
+            </div>
+
+            <div class="tab-content active" id="ownerJobsTab">
+                <div class="btn-row">
+                    <button class="btn btn-primary btn-small" onclick="openModal('job')">📤 نشر إعلان</button>
+                    <button class="btn btn-secondary btn-small" onclick="refreshOwnerData()">🔄 تحديث</button>
+                </div>
+                <div id="myJobsList">
+                    <div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ownerRequestsTab">
+                <div id="receivedAppsList">
+                    <div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="ownerWorkersTab">
+                <div class="form-group">
+                    <label>🔍 ابحث عن عمال</label>
+                    <div class="flex">
+                        <input type="text" id="ownerSearchWorker" placeholder="اسم أو مدينة" style="flex:1;">
+                        <button class="btn btn-primary btn-small" onclick="searchWorkers()">بحث</button>
+                    </div>
+                </div>
+                <div id="workersList">
+                    <div class="empty">
+                        <span class="empty-icon">🔎</span>
+                        ابحث عن عمال في مدينتك
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== واجهة العامل ====== -->
+        <div class="worker-dashboard" id="workerDashboard">
+            <div class="section-title worker">👨‍🍳 لوحة العامل</div>
+
+            <div class="tabs">
+                <div class="tab worker-tab active" onclick="switchWorkerTab('jobs')">🔍 وظائف</div>
+                <div class="tab worker-tab" onclick="switchWorkerTab('applications')">📩 طلباتي</div>
+                <div class="tab worker-tab" onclick="switchWorkerTab('owners')">🏪 أفران</div>
+            </div>
+
+            <div class="tab-content active" id="workerJobsTab">
+                <div class="form-group">
+                    <label>🔍 ابحث عن وظائف</label>
+                    <div class="flex">
+                        <input type="text" id="searchCityWorker" placeholder="اسم المدينة" style="flex:1;">
+                        <button class="btn btn-primary btn-small" onclick="searchJobsWorker()">بحث</button>
+                    </div>
+                </div>
+                <div id="jobsResults">
+                    <div class="empty">
+                        <span class="empty-icon">🔎</span>
+                        ابحث عن وظائف في مدينتك
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="workerApplicationsTab">
+                <div id="myApplicationsList">
+                    <div class="empty"><span class="empty-icon">📭</span>لم تتقدم لأي وظيفة بعد</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="workerOwnersTab">
+                <div class="form-group">
+                    <label>🔍 ابحث عن أفران</label>
+                    <div class="flex">
+                        <input type="text" id="workerSearchOwner" placeholder="اسم أو مدينة" style="flex:1;">
+                        <button class="btn btn-primary btn-small" onclick="searchOwners()">بحث</button>
+                    </div>
+                </div>
+                <div id="ownersList">
+                    <div class="empty">
+                        <span class="empty-icon">🔎</span>
+                        ابحث عن أفران في مدينتك
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== النافذة المنبثقة ====== -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">📤 نشر إعلان</h3>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div id="modalBody">
+            <!-- المحتوى يتغير حسب النوع -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // 💾 التخزين المحلي
+    // ============================================================
+    function getData(key) {
+        try {
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : [];
+        } catch { return []; }
+    }
+
+    function setData(key, data) {
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    // ============================================================
+    // 📦 قاعدة البيانات
+    // ============================================================
+    let users = getData('khbaz_users_final');
+    let jobs = getData('khbaz_jobs_final');
+    let applications = getData('khbaz_applications_final');
+    let reviews = getData('khbaz_reviews');
+    let currentUser = null;
+    let userLocation = null;
+
+    // ============================================================
+    // 🖥️ دوال الواجهة
+    // ============================================================
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const el = document.getElementById(id);
+        if (el) el.classList.add('active');
+        hideToast();
+    }
+
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        t.className = 'toast ' + type;
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => hideToast(), 4000);
+    }
+
+    function hideToast() {
+        const t = document.getElementById('toast');
+        t.style.display = 'none';
+        t.className = 'toast';
+    }
+
+    // ============================================================
+    // 📍 تحديد الموقع
+    // ============================================================
+    function getLocation() {
+        if (!navigator.geolocation) {
+            showToast('⚠️ متصفحك لا يدعم تحديد الموقع', 'error');
+            return;
+        }
+
+        showToast('⏳ جاري تحديد موقعك...', 'info');
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                showToast('📍 تم تحديد موقعك بنجاح!', 'success');
+                getCityFromCoords(userLocation.lat, userLocation.lng);
+            },
+            function(error) {
+                showToast('⚠️ لم نتمكن من تحديد موقعك: ' + error.message, 'error');
+            },
+            { enableHighAccuracy: true }
+        );
+    }
+
+    function getCityFromCoords(lat, lng) {
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=ar`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.address && data.address.city) {
+                    const city = data.address.city;
+                    if (currentUser) {
+                        const userIndex = users.findIndex(u => u.username === currentUser.username);
+                        if (userIndex !== -1) {
+                            users[userIndex].city = city;
+                            users[userIndex].location = { lat, lng };
+                            setData('khbaz_users_final', users);
+                            currentUser = users[userIndex];
+                            showToast(`📍 تم تحديث مدينتك: ${city}`, 'success');
+                            if (currentUser.role === 'owner') {
+                                loadMyJobs();
+                            } else {
+                                searchJobsWorker();
+                            }
+                        }
+                    }
+                }
+            })
+            .catch(() => {
+                if (currentUser) {
+                    const userIndex = users.findIndex(u => u.username === currentUser.username);
+                    if (userIndex !== -1) {
+                        users[userIndex].location = { lat, lng };
+                        setData('khbaz_users_final', users);
+                        currentUser = users[userIndex];
+                    }
+                }
+            });
+    }
+
+    // ============================================================
+    // ⭐ نظام التقييم
+    // ============================================================
+    function calculateAverageRating(targetUsername) {
+        const userReviews = reviews.filter(r => r.target === targetUsername);
+        if (userReviews.length === 0) return 0;
+        const total = userReviews.reduce((sum, r) => sum + r.rating, 0);
+        return Math.round((total / userReviews.length) * 10) / 10;
+    }
+
+    function getRatingCount(targetUsername) {
+        return reviews.filter(r => r.target === targetUsername).length;
+    }
+
+    function renderStars(rating) {
+        const fullStars = Math.floor(rating);
+        const emptyStars = 5 - fullStars;
+
+        let html = '<div class="rating-display">';
+        for (let i = 0; i < fullStars; i++) {
+            html += '<span class="star">⭐</span>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            html += '<span class="star empty">☆</span>';
+        }
+        html += '</div>';
+        return html;
+    }
+
+    function rateUser(targetUsername, rating) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+        if (currentUser.username === targetUsername) {
+            showToast('❌ لا يمكنك تقييم نفسك', 'error');
+            return;
+        }
+
+        const existingReview = reviews.find(r =>
+            r.from === currentUser.username && r.target === targetUsername
+        );
+
+        if (existingReview) {
+            existingReview.rating = rating;
+            existingReview.date = new Date().toISOString();
+        } else {
+            reviews.push({
+                id: 'rev_' + Date.now(),
+                from: currentUser.username,
+                target: targetUsername,
+                rating: rating,
+                date: new Date().toISOString()
+            });
+        }
+
+        setData('khbaz_reviews', reviews);
+        showToast(`⭐ تم تقييم المستخدم بـ ${rating} نجوم!`, 'success');
+
+        if (currentUser.role === 'owner') {
+            searchWorkers();
+        } else {
+            searchOwners();
+        }
+    }
+
+    // ============================================================
+    // 🎯 النافذة المنبثقة
+    // ============================================================
+    function openModal(type) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        if (type === 'job') {
+            title.textContent = '📤 نشر إعلان جديد';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>📋 عنوان الإعلان <span style="color:#b8652e;">*</span></label>
+                    <input type="text" id="modalJobTitle" placeholder="مطلوب خباز تقليدي">
+                </div>
+                <div class="form-group">
+                    <label>📝 التفاصيل <span style="color:#b8652e;">*</span></label>
+                    <textarea id="modalJobDesc" placeholder="المهام، المهارات، الخبرة المطلوبة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>📍 المدينة <span style="color:#b8652e;">*</span></label>
+                    <input type="text" id="modalJobCity" placeholder="الدار البيضاء">
+                </div>
+                <div class="form-group">
+                    <label>💰 الراتب</label>
+                    <input type="text" id="modalJobSalary" placeholder="3000 درهم">
+                </div>
+                <div class="form-group">
+                    <label>📱 رقم هاتف الفرن <span style="color:#b8652e;">*</span></label>
+                    <input type="text" id="modalJobPhone" placeholder="0612345678">
+                    <div class="field-hint">سيظهر للعمال بعد قبول طلبهم</div>
+                </div>
+                <div class="form-group">
+                    <label>🔴 حالة الطلب</label>
+                    <select id="modalJobUrgency">
+                        <option value="normal">🟡 عادي</option>
+                        <option value="urgent">🔴 عاجل (محتاج فوراً)</option>
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="publishJobFromModal()">📤 نشر</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                </div>
+            `;
+        } else if (type === 'profile') {
+            title.textContent = '📋 ملفي المهني';
+            body.innerHTML = `
+                <div class="form-group">
+                    <label>👤 التخصص</label>
+                    <select id="modalWorkerSpecialty">
+                        <option value="خباز تقليدي">خباز تقليدي</option>
+                        <option value="خباز عصري">خباز عصري</option>
+                        <option value="عجان">عجان</option>
+                        <option value="مساعد فرن">مساعد فرن</option>
+                        <option value="جميع المهارات">جميع المهارات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📝 نبذة عني</label>
+                    <textarea id="modalWorkerBio" placeholder="خبراتي، المهارات، سنوات الخبرة..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>🟢 حالة البحث</label>
+                    <select id="modalWorkerStatus">
+                        <option value="available">🟢 متفرغ للعمل</option>
+                        <option value="not-available">🔴 مشغول حالياً</option>
+                    </select>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-success" onclick="updateProfileFromModal()">💾 حفظ</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+                </div>
+            `;
+            if (currentUser) {
+                setTimeout(() => {
+                    document.getElementById('modalWorkerSpecialty').value = currentUser.specialty || 'خباز تقليدي';
+                    document.getElementById('modalWorkerBio').value = currentUser.bio || '';
+                    document.getElementById('modalWorkerStatus').value = currentUser.workerStatus || 'available';
+                }, 50);
+            }
+        }
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // ============================================================
+    // 🎯 اختيار الدور في التسجيل
+    // ============================================================
+    function selectRegRole(role) {
+        document.querySelectorAll('#registerScreen .role-card').forEach(el => el.classList.remove('active'));
+        if (role === 'worker') {
+            document.getElementById('regRoleWorker').classList.add('active');
+        } else {
+            document.getElementById('regRoleOwner').classList.add('active');
+        }
+    }
+
+    function getSelectedRegRole() {
+        if (document.getElementById('regRoleWorker').classList.contains('active')) return 'worker';
+        return 'owner';
+    }
+
+    // ============================================================
+    // 🔐 المصادقة
+    // ============================================================
+    function register() {
+        const username = document.getElementById('regUser').value.trim();
+        const password = document.getElementById('regPass').value;
+        const city = document.getElementById('regCity').value.trim();
+        const role = getSelectedRegRole();
+
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        let hasError = false;
+        if (!username) { document.getElementById('regUser').classList.add('input-error'); hasError = true; }
+        if (!password || password.length < 4) { document.getElementById('regPass').classList.add('input-error'); hasError = true; }
+        if (!city) { document.getElementById('regCity').classList.add('input-error'); hasError = true; }
+
+        if (hasError) {
+            showToast('❌ الرجاء ملء جميع الحقول المطلوبة', 'error');
+            return;
+        }
+
+        if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+            showToast('❌ هذا الاسم موجود مسبقاً', 'error');
+            document.getElementById('regUser').classList.add('input-error');
+            return;
+        }
+
+        const newUser = {
+            username: username,
+            password: password,
+            city: city,
+            role: role,
+            displayName: username,
+            specialty: role === 'worker' ? 'خباز تقليدي' : '',
+            bio: role === 'worker' ? 'أبحث عن فرصة عمل في مجال المخابز' : '',
+            workerStatus: role === 'worker' ? 'available' : '',
+            location: null,
+            createdAt: new Date().toISOString()
+        };
+
+        users.push(newUser);
+        setData('khbaz_users_final', users);
+
+        currentUser = newUser;
+        updateUI();
+        showToast('🎉 تم التسجيل بنجاح! مرحباً ' + username, 'success');
+
+        setTimeout(() => getLocation(), 1000);
+    }
+
+    function login() {
+        const username = document.getElementById('loginUser').value.trim();
+        const password = document.getElementById('loginPass').value;
+
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+        if (!username) {
+            document.getElementById('loginUser').classList.add('input-error');
+            showToast('❌ أدخل اسم المستخدم', 'error');
+            return;
+        }
+        if (!password) {
+            document.getElementById('loginPass').classList.add('input-error');
+            showToast('❌ أدخل كلمة المرور', 'error');
+            return;
+        }
+
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (!user) {
+            const userExists = users.find(u => u.username === username);
+            if (userExists) {
+                showToast('❌ كلمة المرور غير صحيحة', 'error');
+                document.getElementById('loginPass').classList.add('input-error');
+            } else {
+                showToast('❌ هذا المستخدم غير موجود', 'error');
+                document.getElementById('loginUser').classList.add('input-error');
+            }
+            return;
+        }
+
+        currentUser = user;
+        showToast('👋 مرحباً ' + user.username + '!', 'success');
+        updateUI();
+
+        setTimeout(() => getLocation(), 1000);
+    }
+
+    function logout() {
+        currentUser = null;
+        userLocation = null;
+        updateUI();
+        showToast('👋 تم تسجيل الخروج', '');
+    }
+
+    // ============================================================
+    // 🖥️ تحديث الواجهة حسب الدور
+    // ============================================================
+    function updateUI() {
+        const badge = document.getElementById('userBadge');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        if (currentUser) {
+            badge.style.display = 'inline-flex';
+            badge.textContent = '👋 ' + (currentUser.displayName || currentUser.username);
+            logoutBtn.style.display = 'inline-block';
+            showScreen('mainScreen');
+
+            if (currentUser.role === 'owner') {
+                document.getElementById('ownerDashboard').classList.add('active');
+                document.getElementById('workerDashboard').classList.remove('active');
+                switchOwnerTab('jobs');
+            } else {
+                document.getElementById('workerDashboard').classList.add('active');
+                document.getElementById('ownerDashboard').classList.remove('active');
+                switchWorkerTab('jobs');
+            }
+        } else {
+            badge.style.display = 'none';
+            logoutBtn.style.display = 'none';
+            showScreen('loginScreen');
+        }
+    }
+
+    // ============================================================
+    // 📋 تبويبات صاحب الفرن
+    // ============================================================
+    function switchOwnerTab(tab) {
+        document.querySelectorAll('#ownerDashboard .tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('#ownerDashboard .tab-content').forEach(t => t.classList.remove('active'));
+
+        if (tab === 'jobs') {
+            document.querySelector('#ownerDashboard .tab:nth-child(1)').classList.add('active');
+            document.getElementById('ownerJobsTab').classList.add('active');
+            loadMyJobs();
+        } else if (tab === 'requests') {
+            document.querySelector('#ownerDashboard .tab:nth-child(2)').classList.add('active');
+            document.getElementById('ownerRequestsTab').classList.add('active');
+            loadReceivedApplications();
+        } else if (tab === 'workers') {
+            document.querySelector('#ownerDashboard .tab:nth-child(3)').classList.add('active');
+            document.getElementById('ownerWorkersTab').classList.add('active');
+            searchWorkers();
+        }
+    }
+
+    // ============================================================
+    // 📋 تبويبات العامل
+    // ============================================================
+    function switchWorkerTab(tab) {
+        document.querySelectorAll('#workerDashboard .tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('#workerDashboard .tab-content').forEach(t => t.classList.remove('active'));
+
+        if (tab === 'jobs') {
+            document.querySelector('#workerDashboard .tab:nth-child(1)').classList.add('active');
+            document.getElementById('workerJobsTab').classList.add('active');
+            searchJobsWorker();
+        } else if (tab === 'applications') {
+            document.querySelector('#workerDashboard .tab:nth-child(2)').classList.add('active');
+            document.getElementById('workerApplicationsTab').classList.add('active');
+            loadMyApplications();
+        } else if (tab === 'owners') {
+            document.querySelector('#workerDashboard .tab:nth-child(3)').classList.add('active');
+            document.getElementById('workerOwnersTab').classList.add('active');
+            searchOwners();
+        }
+    }
+
+    // ============================================================
+    // 🔍 البحث عن عمال (لصاحب الفرن)
+    // ============================================================
+    function searchWorkers() {
+        const query = document.getElementById('ownerSearchWorker').value.trim().toLowerCase();
+        const div = document.getElementById('workersList');
+
+        let workers = users.filter(u => u.role === 'worker');
+
+        if (query) {
+            workers = workers.filter(u =>
+                u.displayName.toLowerCase().includes(query) ||
+                u.username.toLowerCase().includes(query) ||
+                (u.city && u.city.toLowerCase().includes(query))
+            );
+        }
+
+        if (workers.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${query ? 'لا يوجد عمال مطابقين ل "' + query + '"' : 'لا يوجد عمال مسجلين حالياً'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        workers.forEach(worker => {
+            const isAvailable = worker.workerStatus !== 'not-available';
+            const avgRating = calculateAverageRating(worker.username);
+            const ratingCount = getRatingCount(worker.username);
+            const distance = userLocation && worker.location ?
+                calculateDistance(userLocation.lat, userLocation.lng, worker.location.lat, worker.location.lng) :
+                null;
+
+            html += `
+                <div class="card card-worker">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h4>${worker.displayName || worker.username}</h4>
+                        <span class="status-badge ${isAvailable ? 'available' : 'normal'}">
+                            ${isAvailable ? '🟢 متفرغ' : '🔴 مشغول'}
+                        </span>
+                    </div>
+                    <p>${worker.bio || 'أبحث عن فرصة عمل في مجال المخابز'}</p>
+                    <div class="meta">
+                        <span>📍 ${worker.city || 'غير محدد'}</span>
+                        ${distance !== null ? `<span class="location-badge">📍 ${distance.toFixed(1)} كم</span>` : ''}
+                        <span class="badge">${worker.specialty || 'خباز'}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                        ${renderStars(avgRating)}
+                        <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="openRatingModal('${worker.username}')">
+                            ⭐ تقييم
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // 🔍 البحث عن أفران (للعامل)
+    // ============================================================
+    function searchOwners() {
+        const query = document.getElementById('workerSearchOwner').value.trim().toLowerCase();
+        const div = document.getElementById('ownersList');
+
+        let owners = users.filter(u => u.role === 'owner');
+
+        if (query) {
+            owners = owners.filter(u =>
+                u.displayName.toLowerCase().includes(query) ||
+                u.username.toLowerCase().includes(query) ||
+                (u.city && u.city.toLowerCase().includes(query))
+            );
+        }
+
+        if (owners.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${query ? 'لا توجد أفران مطابقة ل "' + query + '"' : 'لا توجد أفران مسجلة حالياً'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        owners.forEach(owner => {
+            const ownerJobs = jobs.filter(j => j.ownerId === owner.username && j.status === 'مفتوح');
+            const hasUrgent = ownerJobs.some(j => j.urgency === 'urgent');
+            const avgRating = calculateAverageRating(owner.username);
+            const ratingCount = getRatingCount(owner.username);
+            const distance = userLocation && owner.location ?
+                calculateDistance(userLocation.lat, userLocation.lng, owner.location.lat, owner.location.lng) :
+                null;
+
+            html += `
+                <div class="card card-owner">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h4>${owner.displayName || owner.username}</h4>
+                        ${hasUrgent ?
+                            '<span class="status-badge urgent">🔴 محتاج عمال</span>' :
+                            ownerJobs.length > 0 ?
+                            '<span class="status-badge normal">🟡 يبحث عن عمال</span>' :
+                            '<span class="status-badge normal">⚪ لا يبحث حالياً</span>'
+                        }
+                    </div>
+                    <p>📍 ${owner.city || 'غير محدد'}</p>
+                    <div class="meta">
+                        ${distance !== null ? `<span class="location-badge">📍 ${distance.toFixed(1)} كم</span>` : ''}
+                        ${ownerJobs.length > 0 ? `<span class="badge">📋 ${ownerJobs.length} إعلان</span>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                        ${renderStars(avgRating)}
+                        <span style="font-size:12px; color:#8b6b51;">(${ratingCount})</span>
+                    </div>
+                    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                        ${ownerJobs.length > 0 ?
+                            `<button class="btn btn-primary btn-small" onclick="viewOwnerJobs('${owner.username}')">👀 عرض الوظائف</button>` :
+                            ''
+                        }
+                        <button class="btn btn-secondary btn-small" onclick="openRatingModal('${owner.username}')">
+                            ⭐ تقييم
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // ⭐ نافذة التقييم المنبثقة
+    // ============================================================
+    function openRatingModal(targetUsername) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        const targetUser = users.find(u => u.username === targetUsername);
+        if (!targetUser) {
+            showToast('❌ المستخدم غير موجود', 'error');
+            return;
+        }
+
+        const existingReview = reviews.find(r =>
+            r.from === currentUser?.username && r.target === targetUsername
+        );
+        const currentRating = existingReview ? existingReview.rating : 0;
+
+        title.textContent = `⭐ تقييم ${targetUser.displayName || targetUser.username}`;
+        body.innerHTML = `
+            <div style="text-align:center; margin-bottom:16px;">
+                <div style="font-size:48px; margin-bottom:8px;">${targetUser.role === 'owner' ? '🏪' : '👨‍🍳'}</div>
+                <h4 style="color:#4a2c1b;">${targetUser.displayName || targetUser.username}</h4>
+                <p style="color:#8b6b51; font-size:13px;">📍 ${targetUser.city || 'غير محدد'}</p>
+            </div>
+            <div style="text-align:center; margin-bottom:16px;">
+                <label style="font-weight:600; color:#4a2c1b; display:block; margin-bottom:8px;">اختر عدد النجوم</label>
+                <div class="rating" style="justify-content:center; font-size:32px;" id="ratingStars">
+                    ${[1,2,3,4,5].map(i => `
+                        <span class="star ${i <= currentRating ? 'active' : ''}" 
+                              onclick="setRating(${i})" 
+                              onmouseenter="hoverRating(${i})" 
+                              onmouseleave="resetRating(${currentRating})"
+                              style="cursor:pointer; transition:0.2s; font-size:32px; color:${i <= currentRating ? '#f5a623' : '#ddd'};">★</span>
+                    `).join('')}
+                </div>
+                <input type="hidden" id="selectedRating" value="${currentRating}">
+                <div style="font-size:13px; color:#8b6b51; margin-top:4px;" id="ratingLabel">
+                    ${currentRating > 0 ? getRatingLabel(currentRating) : 'اختر تقييمك'}
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-success" onclick="submitRating('${targetUsername}')">💾 تأكيد التقييم</button>
+                <button class="btn btn-secondary" onclick="closeModal()">إلغاء</button>
+            </div>
+        `;
+
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    let hoveredRating = 0;
+
+    function setRating(val) {
+        document.getElementById('selectedRating').value = val;
+        document.getElementById('ratingLabel').textContent = getRatingLabel(val);
+        updateStars(val);
+    }
+
+    function hoverRating(val) {
+        hoveredRating = val;
+        updateStars(val);
+    }
+
+    function resetRating(current) {
+        const val = parseInt(document.getElementById('selectedRating').value) || current || 0;
+        updateStars(val);
+    }
+
+    function updateStars(val) {
+        document.querySelectorAll('#ratingStars .star').forEach((star, index) => {
+            const isActive = index < val;
+            star.style.color = isActive ? '#f5a623' : '#ddd';
+            star.className = 'star' + (isActive ? ' active' : '');
+        });
+    }
+
+    function getRatingLabel(val) {
+        const labels = {
+            1: '🌟 سيء جداً',
+            2: '🌟 سيء',
+            3: '🌟 متوسط',
+            4: '🌟 جيد',
+            5: '🌟 ممتاز'
+        };
+        return labels[val] || 'اختر تقييمك';
+    }
+
+    function submitRating(targetUsername) {
+        const rating = parseInt(document.getElementById('selectedRating').value);
+        if (rating === 0) {
+            showToast('❌ الرجاء اختيار عدد النجوم', 'error');
+            return;
+        }
+        rateUser(targetUsername, rating);
+        closeModal();
+    }
+
+    // ============================================================
+    // 📞 زر الاتصال (للتواصل عبر التعليقات)
+    // ============================================================
+    function viewOwnerJobs(username) {
+        const ownerJobs = jobs.filter(j => j.ownerId === username && j.status === 'مفتوح');
+
+        if (ownerJobs.length === 0) {
+            showToast('لا توجد وظائف متاحة حالياً', '');
+            return;
+        }
+
+        let msg = '📋 الوظائف المتاحة:\n\n';
+        ownerJobs.forEach((j, i) => {
+            msg += `${i+1}. ${j.title}\n`;
+            msg += `   📍 ${j.city} | 💰 ${j.salary}\n`;
+            msg += `   ${j.description}\n`;
+            if (j.urgency === 'urgent') msg += '   🔴 عاجل!\n';
+            msg += '\n';
+        });
+        msg += '\n📩 للتقدم، اذهب إلى تبويب "وظائف"';
+        alert(msg);
+    }
+
+    // ============================================================
+    // 📋 وظائف صاحب الفرن
+    // ============================================================
+    function publishJobFromModal() {
+        if (!currentUser || currentUser.role !== 'owner') {
+            showToast('❌ فقط أصحاب الأفران يمكنهم نشر إعلانات', 'error');
+            return;
+        }
+
+        const title = document.getElementById('modalJobTitle').value.trim();
+        const desc = document.getElementById('modalJobDesc').value.trim();
+        const city = document.getElementById('modalJobCity').value.trim();
+        const salary = document.getElementById('modalJobSalary').value.trim();
+        const phone = document.getElementById('modalJobPhone').value.trim();
+        const urgency = document.getElementById('modalJobUrgency').value;
+
+        document.querySelectorAll('#modalBody .input-error').forEach(el => el.classList.remove('input-error'));
+
+        let hasError = false;
+        if (!title) { document.getElementById('modalJobTitle').classList.add('input-error'); hasError = true; }
+        if (!desc) { document.getElementById('modalJobDesc').classList.add('input-error'); hasError = true; }
+        if (!city) { document.getElementById('modalJobCity').classList.add('input-error'); hasError = true; }
+        if (!phone) { document.getElementById('modalJobPhone').classList.add('input-error'); hasError = true; }
+
+        if (hasError) {
+            showToast('❌ املأ جميع الحقول المطلوبة', 'error');
+            return;
+        }
+
+        const newJob = {
+            id: 'job_' + Date.now(),
+            ownerId: currentUser.username,
+            ownerName: currentUser.displayName || currentUser.username,
+            ownerPhone: phone,
+            title: title,
+            description: desc,
+            city: city,
+            salary: salary || 'غير محدد',
+            urgency: urgency,
+            status: 'مفتوح',
+            createdAt: new Date().toISOString()
+        };
+
+        jobs.push(newJob);
+        setData('khbaz_jobs_final', jobs);
+
+        closeModal();
+        showToast('📢 تم نشر الإعلان بنجاح!', 'success');
+        loadMyJobs();
+    }
+
+    function loadMyJobs() {
+        if (!currentUser) return;
+        const div = document.getElementById('myJobsList');
+
+        const myJobs = jobs.filter(j => j.ownerId === currentUser.username);
+
+        if (myJobs.length === 0) {
+            div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لم تنشر أي إعلان بعد</div>`;
+            return;
+        }
+
+        let html = '';
+        myJobs.forEach(job => {
+            const applicants = applications.filter(a => a.jobId === job.id);
+            html += `
+                <div class="card card-owner">
+                    <h4>${job.title}</h4>
+                    <p>${job.description}</p>
+                    <div class="meta">
+                        <span>📍 ${job.city}</span>
+                        <span>💰 ${job.salary}</span>
+                        ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
+                        <span class="badge ${job.status === 'مفتوح' ? 'badge-green' : 'badge-red'}">${job.status}</span>
+                        <span class="badge">👥 ${applicants.length}</span>
+                    </div>
+                    ${job.status === 'مفتوح' ?
+                        `<button class="btn btn-danger btn-small" style="margin-top:8px; padding:6px 14px; font-size:12px;" onclick="closeJob('${job.id}')">🔒 إغلاق</button>` :
+                        ''
+                    }
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    function closeJob(jobId) {
+        const job = jobs.find(j => j.id === jobId);
+        if (job) {
+            job.status = 'مغلق';
+            setData('khbaz_jobs_final', jobs);
+            showToast('🔒 تم إغلاق الإعلان', '');
+            loadMyJobs();
+            loadReceivedApplications();
+        }
+    }
+
+    function refreshOwnerData() {
+        loadMyJobs();
+        loadReceivedApplications();
+        showToast('🔄 تم التحديث', '');
+    }
+
+    // ============================================================
+    // 📩 طلبات وصلت لصاحب الفرن
+    // ============================================================
+    function loadReceivedApplications() {
+        if (!currentUser) return;
+        const div = document.getElementById('receivedAppsList');
+
+        const myJobIds = jobs.filter(j => j.ownerId === currentUser.username).map(j => j.id);
+        const received = applications.filter(a => myJobIds.includes(a.jobId));
+
+        if (received.length === 0) {
+            div.innerHTML = `<div class="empty"><span class="empty-icon">📭</span>لا توجد طلبات حتى الآن</div>`;
+            return;
+        }
+
+        let html = '';
+        received.forEach(app => {
+            const job = jobs.find(j => j.id === app.jobId);
+            const isAccepted = app.status === 'مقبول';
+            html += `
+                <div class="card ${isAccepted ? 'card-accepted' : 'card-owner'}">
+                    <h4>${app.workerName}</h4>
+                    <p>📋 تقدم للوظيفة: ${job ? job.title : 'غير متاحة'}</p>
+                    <div class="meta">
+                        <span>📍 ${job ? job.city : ''}</span>
+                        <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
+                        <span>📅 ${new Date(app.appliedAt).toLocaleDateString('ar-MA')}</span>
+                    </div>
+                    ${isAccepted && job ? `
+                        <div class="contact-info">
+                            <div>
+                                <div class="owner-name">🏪 ${job.ownerName}</div>
+                                <div class="owner-phone">📱 ${job.ownerPhone || 'رقم غير متوفر'}</div>
+                            </div>
+                            ${job.ownerPhone ? `
+                                <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
+                                    📞 اتصل
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="btn btn-success btn-small" style="padding:6px 14px; font-size:12px;" onclick="acceptApplication('${app.id}')">✅ قبول</button>
+                            <button class="btn btn-danger btn-small" style="padding:6px 14px; font-size:12px;" onclick="rejectApplication('${app.id}')">❌ رفض</button>
+                        </div>
+                    `}
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    function acceptApplication(appId) {
+        const app = applications.find(a => a.id === appId);
+        if (app) {
+            app.status = 'مقبول';
+            setData('khbaz_applications_final', applications);
+            showToast('✅ تم قبول الطلب!', 'success');
+            loadReceivedApplications();
+            loadMyApplications();
+        }
+    }
+
+    function rejectApplication(appId) {
+        const app = applications.find(a => a.id === appId);
+        if (app) {
+            app.status = 'مرفوض';
+            setData('khbaz_applications_final', applications);
+            showToast('❌ تم رفض الطلب', '');
+            loadReceivedApplications();
+            loadMyApplications();
+        }
+    }
+
+    // ============================================================
+    // 📞 زر الاتصال
+    // ============================================================
+    function callNumber(phoneNumber) {
+        if (!phoneNumber) {
+            showToast('⚠️ رقم الهاتف غير متوفر', 'error');
+            return;
+        }
+        const cleanNumber = phoneNumber.replace(/\s/g, '').replace(/-/g, '');
+        window.location.href = 'tel:' + cleanNumber;
+    }
+
+    // ============================================================
+    // 🔍 وظائف العامل
+    // ============================================================
+    function searchJobsWorker() {
+        const city = document.getElementById('searchCityWorker').value.trim();
+        const div = document.getElementById('jobsResults');
+
+        let filtered = jobs.filter(j => j.status === 'مفتوح');
+
+        if (city) {
+            filtered = filtered.filter(j => j.city.toLowerCase().includes(city.toLowerCase()));
+        }
+
+        if (filtered.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">😅</span>
+                    ${city ? 'لا توجد وظائف في "' + city + '"' : 'لا توجد وظائف متاحة حالياً'}
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(job => {
+            const applied = applications.some(a =>
+                a.jobId === job.id && a.workerId === currentUser?.username
+            );
+
+            const applicantsCount = applications.filter(a => a.jobId === job.id).length;
+
+            const ownerAvgRating = calculateAverageRating(job.ownerId);
+            const ownerRatingCount = getRatingCount(job.ownerId);
+
+            html += `
+                <div class="card card-worker">
+                    <h4>${job.title}</h4>
+                    <p>${job.description}</p>
+                    <div class="meta">
+                        <span>📍 ${job.city}</span>
+                        <span>💰 ${job.salary}</span>
+                        ${job.urgency === 'urgent' ? '<span class="status-badge urgent">🔴 عاجل</span>' : ''}
+                        <span class="badge">👥 ${applicantsCount}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:4px; font-size:13px; color:#8b6b51;">
+                        🏪 ${job.ownerName}
+                        ${renderStars(ownerAvgRating)}
+                        <span>(${ownerRatingCount})</span>
+                    </div>
+                    ${applied ?
+                        '<span class="badge badge-green">✅ تم التقديم</span>' :
+                        `<button class="btn btn-success btn-small" style="margin-top:8px;" onclick="applyForJob('${job.id}')">📩 تقدم للوظيفة</button>`
+                    }
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    function applyForJob(jobId) {
+        if (!currentUser) {
+            showToast('❌ يجب تسجيل الدخول أولاً', 'error');
+            return;
+        }
+
+        if (currentUser.role !== 'worker') {
+            showToast('❌ فقط العمال يمكنهم التقدم للوظائف', 'error');
+            return;
+        }
+
+        if (applications.some(a => a.jobId === jobId && a.workerId === currentUser.username)) {
+            showToast('⚠️ لقد تقدمت لهذه الوظيفة مسبقاً', 'error');
+            return;
+        }
+
+        applications.push({
+            id: 'app_' + Date.now(),
+            jobId: jobId,
+            workerId: currentUser.username,
+            workerName: currentUser.displayName || currentUser.username,
+            status: 'قيد المراجعة',
+            appliedAt: new Date().toISOString()
+        });
+        setData('khbaz_applications_final', applications);
+
+        showToast('✅ تم التقديم بنجاح!', 'success');
+        searchJobsWorker();
+        loadMyApplications();
+    }
+
+    // ============================================================
+    // 📩 طلباتي (للعامل)
+    // ============================================================
+    function loadMyApplications() {
+        if (!currentUser) return;
+        const div = document.getElementById('myApplicationsList');
+
+        const myApps = applications.filter(a => a.workerId === currentUser.username);
+
+        if (myApps.length === 0) {
+            div.innerHTML = `
+                <div class="empty">
+                    <span class="empty-icon">📭</span>
+                    لم تتقدم لأي وظيفة بعد
+                    <br><small style="color:#b0957e;">ابحث عن وظائف في تبويب "وظائف"</small>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        myApps.forEach(app => {
+            const job = jobs.find(j => j.id === app.jobId);
+            const isAccepted = app.status === 'مقبول';
+            html += `
+                <div class="card ${isAccepted ? 'card-accepted' : 'card-worker'}">
+                    <h4>${job ? job.title : 'وظيفة غير متاحة'}</h4>
+                    <p>${job ? job.description : ''}</p>
+                    <div class="meta">
+                        <span>📍 ${job ? job.city : ''}</span>
+                        <span>💰 ${job ? job.salary : ''}</span>
+                        <span class="badge ${app.status === 'قيد المراجعة' ? 'badge-gold' : app.status === 'مقبول' ? 'badge-accepted' : 'badge-red'}">${app.status}</span>
+                    </div>
+                    <div style="margin-top:6px; font-size:12px; color:#8b6b51;">
+                        📅 تم التقديم: ${new Date(app.appliedAt).toLocaleDateString('ar-MA')}
+                    </div>
+                    ${isAccepted && job ? `
+                        <div class="contact-info">
+                            <div>
+                                <div class="owner-name">🏪 ${job.ownerName || 'صاحب الفرن'}</div>
+                                <div class="owner-phone">📱 ${job.ownerPhone || 'رقم غير متوفر'}</div>
+                            </div>
+                            ${job.ownerPhone ? `
+                                <button class="btn-call-small" onclick="callNumber('${job.ownerPhone}')">
+                                    📞 اتصل بالفرن
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        div.innerHTML = html;
+    }
+
+    // ============================================================
+    // 📝 تحديث ملف العامل (من النافذة المنبثقة)
+    // ============================================================
+    function updateProfileFromModal() {
+        if (!currentUser || currentUser.role !== 'worker') {
+            showToast('❌ فقط العمال يمكنهم تحديث ملفهم', 'error');
+            return;
+        }
+
+        const specialty = document.getElementById('modalWorkerSpecialty').value;
+        const bio = document.getElementById('modalWorkerBio').value.trim();
+        const status = document.getElementById('modalWorkerStatus').value;
+
+        const userIndex = users.findIndex(u => u.username === currentUser.username);
+        if (userIndex !== -1) {
+            users[userIndex].specialty = specialty;
+            users[userIndex].bio = bio || 'أبحث عن فرصة عمل في مجال المخابز';
+            users[userIndex].workerStatus = status;
+            setData('khbaz_users_final', users);
+            currentUser = users[userIndex];
+            closeModal();
+            showToast('✅ تم تحديث ملفك المهني بنجاح!', 'success');
+        }
+    }
+
+    // ============================================================
+    // 📏 حساب المسافة
+    // ============================================================
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // ============================================================
+    // 📦 بيانات تجريبية
+    // ============================================================
+    function initDemoData() {
+        if (users.length === 0) {
+            const demoUsers = [
+                {
+                    username: 'فرن_الدار',
+                    password: '1234',
+                    city: 'الدار البيضاء',
+                    role: 'owner',
+                    displayName: 'فرن الدار البيضاء',
+                    location: { lat: 33.5731, lng: -7.5898 },
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    username: 'فرن_مراكش',
+                    password: '1234',
+                    city: 'مراكش',
+                    role: 'owner',
+                    displayName: 'فرن مراكش التقليدي',
+                    location: { lat: 31.6295, lng: -7.9811 },
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    username: 'خباز_محمد',
+                    password: '1234',
+                    city: 'الدار البيضاء',
+                    role: 'worker',
+                    displayName: 'محمد الخباز',
+                    specialty: 'خباز تقليدي',
+                    bio: 'خبرة 5 سنوات في الخبز التقليدي',
+                    workerStatus: 'available',
+                    location: { lat: 33.5800, lng: -7.6000 },
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    username: 'عجان_أحمد',
+                    password: '1234',
+                    city: 'مراكش',
+                    role: 'worker',
+                    displayName: 'أحمد العجان',
+                    specialty: 'عجان',
+                    bio: 'خبرة 3 سنوات في العجن والتشكيل',
+                    workerStatus: 'available',
+                    location: { lat: 31.6400, lng: -7.9900 },
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    username: 'خبازة_فاطمة',
+                    password: '1234',
+                    city: 'الدار البيضاء',
+                    role: 'worker',
+                    displayName: 'فاطمة الخبازة',
+                    specialty: 'خبازة تقليدية',
+                    bio: 'خبرة 7 سنوات في الخبز التقليدي والحلويات',
+                    workerStatus: 'available',
+                    location: { lat: 33.5600, lng: -7.5800 },
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            users = demoUsers;
+            setData('khbaz_users_final', users);
+        }
+
+        if (jobs.length === 0) {
+            const demoJobs = [
+                {
+                    id: 'demo_1',
+                    ownerId: 'فرن_الدار',
+                    ownerName: 'فرن الدار البيضاء',
+                    ownerPhone: '0612345678',
+                    title: 'مطلوب خباز تقليدي',
+                    description: 'خبز على الطريقة التقليدية، خبرة 3 سنوات على الأقل',
+                    city: 'الدار البيضاء',
+                    salary: '2500 درهم',
+                    urgency: 'normal',
+                    status: 'مفتوح',
+                    createdAt: new Date(Date.now() - 3600000).toISOString()
+                },
+                {
+                    id: 'demo_2',
+                    ownerId: 'فرن_مراكش',
+                    ownerName: 'فرن مراكش التقليدي',
+                    ownerPhone: '0612345679',
+                    title: '🔴 عاجل: مطلوب عجان',
+                    description: 'العجن والتشكيل لأفران آلية، دوام كامل من الساعة 5 صباحاً',
+                    city: 'مراكش',
+                    salary: '3000 درهم',
+                    urgency: 'urgent',
+                    status: 'مفتوح',
+                    createdAt: new Date(Date.now() - 7200000).toISOString()
+                },
+                {
+                    id: 'demo_3',
+                    ownerId: 'فرن_الدار',
+                    ownerName: 'فرن الدار البيضاء',
+                    ownerPhone: '0612345678',
+                    title: 'مطلوب مساعد خباز',
+                    description: 'مساعدة في تجهيز العجين وتنظيف الأدوات',
+                    city: 'الدار البيضاء',
+                    salary: '2000 درهم',
+                    urgency: 'normal',
+                    status: 'مفتوح',
+                    createdAt: new Date(Date.now() - 18000000).toISOString()
+                }
+            ];
+            jobs = demoJobs;
+            setData('khbaz_jobs_final', jobs);
+        }
+
+        if (reviews.length === 0) {
+            const demoReviews = [
+                {
+                    id: 'rev_1',
+                    from: 'خباز_محمد',
+                    target: 'فرن_الدار',
+                    rating: 4,
+                    date: new Date(Date.now() - 86400000).toISOString()
+                },
+                {
+                    id: 'rev_2',
+                    from: 'عجان_أحمد',
+                    target: 'فرن_مراكش',
+                    rating: 5,
+                    date: new Date(Date.now() - 172800000).toISOString()
+                },
+                {
+                    id: 'rev_3',
+                    from: 'فرن_الدار',
+                    target: 'خباز_محمد',
+                    rating: 5,
+                    date: new Date(Date.now() - 259200000).toISOString()
+                }
+            ];
+            reviews = demoReviews;
+            setData('khbaz_reviews', reviews);
+        }
+    }
+
+    // ============================================================
+    // 🚀 بدء التطبيق
+    // ============================================================
+    initDemoData();
+    updateUI();
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const activeScreen = document.querySelector('.screen.active');
+            if (activeScreen) {
+                if (activeScreen.id === 'loginScreen') {
+                    login();
+                } else if (activeScreen.id === 'registerScreen') {
+                    register();
+                }
+            }
+        }
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    console.log('🍞 تطبيق خباز - النسخة الكاملة بدون رقم هاتف');
+    console.log('👥 المستخدمين:', users.length);
+    console.log('📋 الوظائف:', jobs.length);
+    console.log('📩 الطلبات:', applications.length);
+    console.log('⭐ التقييمات:', reviews.length);
+</script>
+
+</body>
+</html>
