@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>خدمة - منصة التوظيف</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal','Segoe UI',sans-serif}
         body{background:linear-gradient(145deg,#fdf6f0,#f5e8d8);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
@@ -87,7 +88,7 @@
     <!-- ====== تسجيل الدخول ====== -->
     <div class="screen active" id="loginScreen">
         <div class="hero"><span class="hero-icon">🍞</span><div class="hero-text">سجل دخولك للوصول إلى <span>منصة التوظيف</span></div></div>
-        <div class="demo-box">🔑 <strong>مستخدمين تجريبيين:</strong><br> <strong>Mobarak</strong> / 123456</div>
+        <div class="demo-box">🔑 <strong>مستخدمين تجريبيين:</strong><br> <strong>test</strong> / 123456</div>
         <div class="form-group"><label>👤 اسم المستخدم</label><input type="text" id="loginUser" placeholder="أدخل اسم المستخدم"></div>
         <div class="form-group"><label>🔒 كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••"></div>
         <button class="btn btn-primary" onclick="login()">🚀 دخول</button>
@@ -120,9 +121,6 @@
                 <option value="مطعم">🍽️ مطعم</option>
                 <option value="سناك">🍔 سناك</option>
                 <option value="محلبات">🍦 محلبات</option>
-                <option value="مطعم_وجبات_سريعة">🍟 مطعم وجبات سريعة</option>
-                <option value="مطعم_عائلي">👨‍👩‍👦 مطعم عائلي</option>
-                <option value="مطعم_فاخر">✨ مطعم فاخر</option>
                 <option value="أخرى">📌 أخرى</option>
             </select>
         </div>
@@ -157,22 +155,15 @@
 
 <script>
     // ============================================================
-    // 🔥 تحميل Firebase
+    // 🔥 إعدادات Supabase - مع بيانات مشروعك
     // ============================================================
-    const firebaseConfig = {
-        apiKey: "AIzaSyBllf-5nXOcdhxarDfcqSAPyPRz5J-IiXo",
-        authDomain: "wadifti-9c7b1.firebaseapp.com",
-        projectId: "wadifti-9c7b1",
-        storageBucket: "wadifti-9c7b1.firebasestorage.app",
-        messagingSenderId: "814051581766",
-        appId: "1:814051581766:web:61fafe5f21c45811d70f47"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    console.log('🔥 Firebase متصل!');
+    const supabaseUrl = 'https://ynufjidcgeetvgldjjy.supabase.co';
+    const supabaseKey = 'sb_publishable_SdGyYpmQXmYfDQjVcC7uYQ_j8TtheAU';
+    
+    // ============================================================
+    
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    console.log('🔥 Supabase جاهز!');
 
     // ============================================================
     // 📦 المتغيرات
@@ -224,9 +215,9 @@
         body.innerHTML = `
             <div style="text-align:center;padding:10px 0;">
                 <div style="font-size:56px;margin-bottom:6px;">${data.role === 'owner' ? '🏪' : '🎯'}</div>
-                <h3 style="color:#4a2c1b;">${data.displayName || data.username}</h3>
+                <h3 style="color:#4a2c1b;">${data.display_name || data.username}</h3>
                 <div style="color:#8b6b51;font-size:13px;margin-top:4px;">${roleText}</div>
-                ${data.sector ? `<div style="color:#2d8f4e;font-size:13px;margin-top:2px;">${data.sectorIcon || ''} ${data.sector}</div>` : ''}
+                ${data.sector ? `<div style="color:#2d8f4e;font-size:13px;margin-top:2px;">${data.sector}</div>` : ''}
                 <div style="margin-top:8px;font-size:13px;color:#8b6b51;">
                     <div>📍 ${data.city || 'غير محدد'}</div>
                     <div>📱 ${data.phone || 'غير متوفر'}</div>
@@ -239,9 +230,9 @@
     }
 
     // ============================================================
-    // 🔐 المصادقة
+    // 🔐 المصادقة مع Supabase
     // ============================================================
-    function register() {
+    async function register() {
         const username = document.getElementById('regUser').value.trim();
         const password = document.getElementById('regPass').value;
         const city = document.getElementById('regCity').value.trim();
@@ -260,20 +251,34 @@
         }
 
         const email = username + '@khdma.app';
-        console.log('📧 محاولة التسجيل:', email);
 
-        auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log('✅ تم إنشاء المستخدم:', user.uid);
+        try {
+            // 1. إنشاء المستخدم في Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
 
-                const sectorIcons = {
-                    'مخبز':'🥖','مقهى':'☕','مطعم':'🍽️',
-                    'سناك':'🍔','محلبات':'🍦','مطعم_وجبات_سريعة':'🍟',
-                    'مطعم_عائلي':'👨‍👩‍👦','مطعم_فاخر':'✨','أخرى':'📌'
-                };
+            if (authError) {
+                if (authError.message.includes('already registered')) {
+                    showToast('❌ هذا الاسم مستخدم، اختر اسماً آخر', 'error');
+                    document.getElementById('regUser').classList.add('input-error');
+                } else {
+                    showToast('❌ ' + authError.message, 'error');
+                }
+                return;
+            }
 
-                return db.collection('users').doc(user.uid).set({
+            if (!authData.user) {
+                showToast('❌ حدث خطأ في إنشاء الحساب', 'error');
+                return;
+            }
+
+            // 2. حفظ بيانات المستخدم في جدول users
+            const { error: dbError } = await supabase
+                .from('users')
+                .insert({
+                    id: authData.user.id,
                     username: username,
                     email: email,
                     city: city,
@@ -281,30 +286,25 @@
                     bio: bio || (role === 'worker' ? 'مهني محترف في مجال الأكل والشرب' : 'منشأة متخصصة في الأكل والشرب'),
                     role: role,
                     sector: sector,
-                    sectorIcon: sectorIcons[sector] || '🏪',
-                    displayName: username,
-                    specialty: role === 'worker' ? 'طباخ' : '',
-                    workerStatus: role === 'worker' ? 'available' : '',
-                    createdAt: new Date().toISOString()
+                    display_name: username,
+                    created_at: new Date().toISOString()
                 });
-            })
-            .then(() => {
-                showToast('🎉 تم التسجيل بنجاح!', 'success');
-            })
-            .catch((error) => {
-                console.error('❌ خطأ:', error);
-                if (error.code === 'auth/email-already-in-use') {
-                    showToast('❌ هذا الاسم مستخدم، اختر اسماً آخر', 'error');
-                    document.getElementById('regUser').classList.add('input-error');
-                } else if (error.code === 'auth/weak-password') {
-                    showToast('❌ كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل', 'error');
-                } else {
-                    showToast('❌ ' + error.message, 'error');
-                }
-            });
+
+            if (dbError) {
+                console.error('❌ خطأ في حفظ البيانات:', dbError);
+                showToast('❌ حدث خطأ في حفظ البيانات', 'error');
+                return;
+            }
+
+            showToast('🎉 تم التسجيل بنجاح!', 'success');
+            
+        } catch (error) {
+            console.error('❌ خطأ:', error);
+            showToast('❌ ' + error.message, 'error');
+        }
     }
 
-    function login() {
+    async function login() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
 
@@ -314,35 +314,74 @@
         }
 
         const email = username + '@khdma.app';
-        console.log('📧 محاولة الدخول:', email);
 
-        auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-                console.log('✅ تم تسجيل الدخول');
-            })
-            .catch((error) => {
-                console.error('❌ خطأ:', error);
-                if (error.code === 'auth/user-not-found') {
-                    showToast('❌ هذا المستخدم غير موجود، قم بالتسجيل أولاً', 'error');
-                } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                if (error.message.includes('Invalid login credentials')) {
                     showToast('❌ اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
-                } else if (error.code === 'auth/invalid-email') {
-                    showToast('❌ اسم المستخدم غير صحيح (لا تستخدم @)', 'error');
                 } else {
                     showToast('❌ ' + error.message, 'error');
                 }
-            });
+                return;
+            }
+
+            if (data.user) {
+                console.log('✅ تم تسجيل الدخول:', data.user.id);
+            }
+        } catch (error) {
+            console.error('❌ خطأ:', error);
+            showToast('❌ ' + error.message, 'error');
+        }
     }
 
-    function logout() {
-        auth.signOut()
-            .then(() => {
-                showToast('👋 تم تسجيل الخروج', '');
-            })
-            .catch((error) => {
-                showToast('❌ ' + error.message, 'error');
-            });
+    async function logout() {
+        try {
+            await supabase.auth.signOut();
+            showToast('👋 تم تسجيل الخروج', '');
+        } catch (error) {
+            showToast('❌ ' + error.message, 'error');
+        }
     }
+
+    // ============================================================
+    // 🔄 مراقبة حالة المستخدم
+    // ============================================================
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log('🔄 تغير حالة المستخدم:', event, session ? 'مسجل' : 'غير مسجل');
+        showLoading(true);
+
+        if (session?.user) {
+            // جلب بيانات المستخدم من جدول users
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+            if (error) {
+                console.error('❌ خطأ في جلب البيانات:', error);
+                currentUserData = null;
+                updateUI(null);
+                return;
+            }
+
+            if (data) {
+                currentUserData = data;
+                updateUI(data);
+            } else {
+                currentUserData = null;
+                updateUI(null);
+            }
+        } else {
+            currentUserData = null;
+            updateUI(null);
+        }
+    });
 
     // ============================================================
     // 🔄 تحديث الواجهة
@@ -353,9 +392,9 @@
 
         if (userData) {
             badge.style.display = 'inline-flex';
-            badge.textContent = '👋 ' + (userData.displayName || userData.username);
+            badge.textContent = '👋 ' + (userData.display_name || userData.username);
             logoutBtn.style.display = 'inline-block';
-            document.getElementById('welcomeMessage').textContent = 'مرحباً ' + (userData.displayName || userData.username) + '!';
+            document.getElementById('welcomeMessage').textContent = 'مرحباً ' + (userData.display_name || userData.username) + '!';
             showScreen('mainScreen');
             showLoading(false);
         } else {
@@ -365,36 +404,6 @@
             showLoading(false);
         }
     }
-
-    // ============================================================
-    // 🔄 مراقبة حالة المستخدم
-    // ============================================================
-    auth.onAuthStateChanged((user) => {
-        console.log('🔄 حالة المستخدم:', user ? 'مسجل' : 'غير مسجل');
-        showLoading(true);
-
-        if (user) {
-            db.collection('users').doc(user.uid).get()
-                .then((doc) => {
-                    if (doc.exists) {
-                        currentUserData = { id: user.uid, ...doc.data() };
-                        updateUI(currentUserData);
-                    } else {
-                        console.warn('⚠️ لا توجد بيانات للمستخدم');
-                        currentUserData = null;
-                        updateUI(null);
-                    }
-                })
-                .catch((error) => {
-                    console.error('❌ خطأ:', error);
-                    currentUserData = null;
-                    updateUI(null);
-                });
-        } else {
-            currentUserData = null;
-            updateUI(null);
-        }
-    });
 
     // ============================================================
     // 🚀 جعل الدوال عالمية
@@ -407,8 +416,8 @@
     window.logout = logout;
     window.viewProfile = viewProfile;
 
-    console.log('🥖 تطبيق خدمة - جاهز!');
-    console.log('🔑 استخدم: Mobarak / 123456 أو سجل حساباً جديداً');
+    console.log('🥖 تطبيق خدمة مع Supabase - جاهز!');
+    console.log('🔑 استخدم: test / 123456');
 </script>
 
 </body>
