@@ -2,101 +2,47 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>خدمة - منصة التوظيف</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خدمة - اختبار</title>
     <style>
-        /* ====== أنماط سريعة ومحسّنة ====== */
-        *{margin:0;padding:0;box-sizing:border-box;font-family:'Tajawal','Segoe UI',sans-serif}
-        body{background:linear-gradient(145deg,#fdf6f0,#f5e8d8);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:16px}
-        .app{max-width:450px;width:100%;background:#fff;border-radius:48px;padding:24px 20px 28px;box-shadow:0 30px 80px rgba(180,100,50,0.18)}
-        .header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-        .logo{display:flex;align-items:center;gap:8px}
-        .logo-icon{font-size:34px}
-        .logo-text{font-size:30px;font-weight:900;color:#3d2415;letter-spacing:-1px}
-        .logo-text .highlight{color:#d4833a}
-        .logo-sub{font-size:10px;font-weight:700;color:#8b6b51;letter-spacing:1px;display:block;margin-top:-2px}
-        .subtitle{text-align:center;color:#8b6b51;font-size:12px;padding-bottom:12px;border-bottom:2px solid #f0e0d0;font-weight:700;margin-bottom:16px}
-        .subtitle span{color:#d4833a}
-        .screen{display:none;animation:fadeUp .4s ease}
-        .screen.active{display:block}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+        body{background:#f5e8d8;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px}
+        .app{max-width:400px;width:100%;background:#fff;border-radius:30px;padding:30px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.1)}
+        h1{text-align:center;color:#3d2415;font-size:28px;margin-bottom:4px}
+        h1 span{color:#d4833a}
+        .sub{text-align:center;color:#8b6b51;font-size:13px;border-bottom:2px solid #f0e0d0;padding-bottom:12px;margin-bottom:20px}
         .form-group{margin-bottom:12px}
-        .form-group label{display:block;font-size:13px;font-weight:700;color:#4a2c1b;margin-bottom:4px}
-        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 14px;border:2px solid #e8ddd2;border-radius:14px;font-size:14px;background:#faf7f4;outline:none;transition:.25s;font-family:inherit}
-        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#d4833a;background:#fff;box-shadow:0 0 0 4px rgba(212,131,58,0.08)}
-        .form-group textarea{resize:vertical;min-height:60px}
-        .btn{padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:800;cursor:pointer;transition:.3s;margin-top:4px;width:100%;font-family:inherit}
-        .btn:active{transform:scale(.97)}
-        .btn-primary{background:linear-gradient(145deg,#d4833a,#b8652e);color:#fff;box-shadow:0 6px 24px rgba(212,131,58,.35)}
-        .btn-primary:hover{background:linear-gradient(145deg,#c07230,#a3541e);transform:translateY(-2px)}
+        .form-group label{display:block;font-weight:700;color:#4a2c1b;font-size:13px;margin-bottom:4px}
+        .form-group input{width:100%;padding:12px 14px;border:2px solid #e8ddd2;border-radius:14px;font-size:14px;outline:none}
+        .form-group input:focus{border-color:#d4833a}
+        .btn{width:100%;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+        .btn-primary{background:#d4833a;color:#fff}
+        .btn-primary:hover{background:#b8652e}
         .btn-secondary{background:transparent;color:#d4833a;border:2px solid #d4833a}
         .btn-secondary:hover{background:#fdf3ea}
         .btn-danger{background:#e74c3c;color:#fff}
         .btn-danger:hover{background:#c0392b}
-        .btn-small{padding:6px 14px;font-size:12px;width:auto;border-radius:30px;font-weight:700}
-        .btn-row{display:flex;gap:8px;margin-top:6px}
-        .btn-row .btn{width:auto;flex:1}
-        .role-selector{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-        .role-card{flex:1;min-width:70px;padding:12px 8px;border:3px solid #e8ddd2;border-radius:18px;text-align:center;cursor:pointer;transition:.3s;background:#faf7f4}
-        .role-card:hover{transform:translateY(-3px)}
-        .role-card.active{border-color:#d4833a;background:linear-gradient(135deg,#fdf3ea,#fef8f2);box-shadow:0 4px 24px rgba(212,131,58,.15)}
-        .role-card .icon{font-size:28px;display:block}
-        .role-card .label{font-weight:800;color:#4a2c1b;font-size:12px;margin-top:3px}
-        .role-card .desc{font-size:9px;color:#8b6b51;margin-top:2px;font-weight:500}
-        .role-card .check{display:none;color:#2d8f4e;font-size:16px;margin-top:3px}
-        .role-card.active .check{display:block}
-        .divider{display:flex;align-items:center;margin:12px 0;color:#b0957e;font-size:11px;font-weight:500}
-        .divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid #e8ddd2}
-        .divider::before{margin-left:10px}
-        .divider::after{margin-right:10px}
-        .btn-back{background:0 0;border:none;color:#d4833a;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:4px 0}
-        .hero{text-align:center;margin-bottom:16px}
-        .hero-icon{font-size:52px;display:block;margin-bottom:2px}
-        .hero-text{color:#8b6b51;font-size:14px;font-weight:700}
-        .hero-text span{color:#d4833a}
-        .flex{display:flex;gap:8px}
-        .flex .btn{width:auto;flex:1}
-        .hidden{display:none!important}
-        .input-error{border-color:#e74c3c!important;background:#fdf2f2!important}
-        .field-hint{font-size:11px;color:#b0957e;margin-top:3px;font-weight:400}
-        .toast{background:#3d2415;color:#fff;padding:12px 18px;border-radius:14px;text-align:center;margin-top:12px;display:none;font-weight:700;font-size:14px;transition:opacity .3s}
+        .divider{text-align:center;color:#b0957e;margin:14px 0;font-size:12px}
+        .divider::before,.divider::after{content:'';display:inline-block;width:30%;border-bottom:1px solid #e8ddd2;margin:0 10px;vertical-align:middle}
+        .toast{background:#3d2415;color:#fff;padding:12px;border-radius:14px;text-align:center;margin-top:12px;display:none;font-weight:700}
         .toast.success{background:#2d8f4e}
         .toast.error{background:#c0392b}
-        .toast.info{background:#1a73e8}
-        .loading-spinner{text-align:center;padding:20px;color:#8b6b51;font-weight:700}
-        .loading-spinner .spinner{display:inline-block;width:30px;height:30px;border:3px solid #f0e0d0;border-top:3px solid #d4833a;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:8px}
-        @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-        @media(max-width:400px){.app{padding:16px 12px}.logo-text{font-size:24px}.btn{font-size:14px;padding:12px}.role-card{padding:8px 4px}.role-card .icon{font-size:22px}}
+        .hidden{display:none!important}
+        .screen{display:none}
+        .screen.active{display:block}
+        .demo-box{background:#fdf3ea;border-radius:14px;padding:10px;margin-bottom:14px;text-align:center;font-size:12px;color:#4a2c1b;border:1px solid #f0dcc8}
     </style>
 </head>
 <body>
 
 <div class="app" id="app">
-    <!-- ====== الهيدر ====== -->
-    <div class="header">
-        <div class="logo">
-            <span class="logo-icon">🥖🍽️</span>
-            <div>
-                <div class="logo-text"><span class="highlight">خ</span>دمة</div>
-                <span class="logo-sub">منصة التوظيف</span>
-            </div>
-        </div>
-        <div class="header-right">
-            <span class="user-badge" id="userBadge" style="display:none;">👋 أحمد</span>
-            <button class="btn-logout" id="logoutBtn" onclick="logout()" style="display:none;">🚪</button>
-        </div>
-    </div>
-    <div class="subtitle">🥖 منصة التوظيف الأولى <span>للمهنيين والمطاعم</span> 🍽️</div>
+    <h1><span>خ</span>دمة</h1>
+    <div class="sub">منصة التوظيف الأولى للمهنيين والمطاعم</div>
     <div class="toast" id="toast"></div>
 
-    <!-- ====== شاشة تسجيل الدخول ====== -->
+    <!-- ====== شاشة الدخول ====== -->
     <div class="screen active" id="loginScreen">
-        <div class="hero"><span class="hero-icon">🍞</span><div class="hero-text">سجل دخولك للوصول إلى <span>منصة التوظيف</span></div></div>
-        <div style="background:linear-gradient(135deg,#fdf3ea,#fef6ed);border-radius:14px;padding:10px;margin-bottom:14px;text-align:center;font-size:12px;color:#4a2c1b;border:1px solid #f0dcc8;">
-            <strong>🔑 مستخدمين تجريبيين:</strong><br>
-            🏪 <strong>مطعم_الدار</strong> / <strong>123456</strong>
-        </div>
+        <div class="demo-box">🔑 <strong>مستخدمين تجريبيين:</strong><br> مهني_محمد / 123456</div>
         <div class="form-group"><label>👤 اسم المستخدم</label><input type="text" id="loginUser" placeholder="أدخل اسم المستخدم"></div>
         <div class="form-group"><label>🔒 كلمة المرور</label><input type="password" id="loginPass" placeholder="••••••••"></div>
         <button class="btn btn-primary" onclick="login()">🚀 دخول</button>
@@ -106,52 +52,43 @@
 
     <!-- ====== شاشة التسجيل ====== -->
     <div class="screen" id="registerScreen">
-        <button class="btn-back" onclick="showScreen('loginScreen')">← رجوع</button>
-        <div class="hero"><span class="hero-icon">🎯</span><div class="hero-text">أنشئ حسابك واختر دورك</div></div>
-        <div class="role-selector">
-            <div class="role-card active" id="regRoleWorker" onclick="selectRegRole('worker')">
-                <span class="icon">🎯</span><div class="label">مهني</div><div class="desc">أبحث عن عمل</div><span class="check">✅</span>
-            </div>
-            <div class="role-card" id="regRoleOwner" onclick="selectRegRole('owner')">
-                <span class="icon">🏪</span><div class="label">صاحب منشأة</div><div class="desc">أبحث عن مهنيين</div><span class="check">✅</span>
-            </div>
-        </div>
-        <div class="form-group"><label>👤 اسم المستخدم <span style="color:#b8652e;">*</span></label><input type="text" id="regUser" placeholder="أدخل اسماً فريداً"></div>
-        <div class="form-group"><label>🔒 كلمة المرور <span style="color:#b8652e;">*</span></label><input type="password" id="regPass" placeholder="6 أحرف على الأقل"></div>
-        <div class="form-group"><label>📍 المدينة <span style="color:#b8652e;">*</span></label><input type="text" id="regCity" placeholder="الدار البيضاء، مراكش..."></div>
-        <div class="form-group"><label>📱 رقم الهاتف <span style="color:#b8652e;">*</span></label><input type="tel" id="regPhone" placeholder="0612345678"></div>
-        <div class="form-group"><label>📝 وصف المهني أو المحل</label><textarea id="regBio" rows="3" placeholder="مثال: خباز محترف خبرة 5 سنوات..."></textarea></div>
-        <div class="form-group"><label>🏷️ قطاع عملك <span style="color:#b8652e;">*</span></label>
-            <select id="regSector">
-                <option value="">اختر القطاع</option>
-                <option value="مخبز">🥖 مخبز</option><option value="مقهى">☕ مقهى</option><option value="مطعم">🍽️ مطعم</option>
-                <option value="سناك">🍔 سناك</option><option value="محلبات">🍦 محلبات</option><option value="مطعم_وجبات_سريعة">🍟 مطعم وجبات سريعة</option>
-                <option value="مطعم_عائلي">👨‍👩‍👦 مطعم عائلي</option><option value="مطعم_فاخر">✨ مطعم فاخر</option><option value="أخرى">📌 أخرى</option>
+        <button onclick="showScreen('loginScreen')" style="background:none;border:none;color:#d4833a;font-weight:700;cursor:pointer;margin-bottom:10px;font-size:14px;">← رجوع</button>
+        <h2 style="text-align:center;font-size:20px;color:#4a2c1b;margin-bottom:14px;">إنشاء حساب</h2>
+        <div class="form-group"><label>👤 اسم المستخدم</label><input type="text" id="regUser" placeholder="أدخل اسماً فريداً"></div>
+        <div class="form-group"><label>🔒 كلمة المرور</label><input type="password" id="regPass" placeholder="6 أحرف على الأقل"></div>
+        <div class="form-group"><label>📍 المدينة</label><input type="text" id="regCity" placeholder="الدار البيضاء"></div>
+        <div class="form-group"><label>📱 رقم الهاتف</label><input type="tel" id="regPhone" placeholder="0612345678"></div>
+        <div class="form-group"><label>🏷️ القطاع</label>
+            <select id="regSector" style="width:100%;padding:12px;border:2px solid #e8ddd2;border-radius:14px;font-size:14px;background:#faf7f4;outline:none">
+                <option value="مطعم">🍽️ مطعم</option>
+                <option value="مخبز">🥖 مخبز</option>
+                <option value="مقهى">☕ مقهى</option>
+                <option value="سناك">🍔 سناك</option>
             </select>
         </div>
         <button class="btn btn-primary" onclick="register()">✅ إنشاء حساب</button>
-        <button class="btn btn-secondary" onclick="showScreen('loginScreen')">🔙 لدي حساب بالفعل</button>
+        <button class="btn btn-secondary" onclick="showScreen('loginScreen')" style="margin-top:8px;">🔙 لدي حساب</button>
     </div>
 
     <!-- ====== اللوحة الرئيسية ====== -->
     <div class="screen" id="mainScreen">
-        <div class="loading-spinner" id="mainLoading"><div class="spinner"></div>جاري التحميل...</div>
-        <div id="mainContent" style="display:none;">
-            <h2 style="text-align:center;color:#4a2c1b;">✅ مرحباً بك!</h2>
-            <p style="text-align:center;color:#8b6b51;margin-top:10px;" id="welcomeMessage">تم تسجيل الدخول بنجاح</p>
-            <button class="btn btn-danger" onclick="logout()" style="margin-top:20px;">🚪 تسجيل خروج</button>
+        <div style="text-align:center;padding:30px 0;">
+            <span style="font-size:60px;">✅</span>
+            <h2 style="color:#4a2c1b;margin-top:10px;">مرحباً بك!</h2>
+            <p style="color:#8b6b51;margin:10px 0 20px;" id="welcomeName">تم تسجيل الدخول</p>
+            <button class="btn btn-danger" onclick="logout()">🚪 تسجيل خروج</button>
         </div>
     </div>
 </div>
 
-<script type="module">
-    // ============================================================
-    // 🔥 استيراد Firebase (محسّن)
-    // ============================================================
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+<!-- ============================================================ -->
+<!-- 🔥 Firebase (طريقة مباشرة) -->
+<!-- ============================================================ -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
+<script>
     // ============================================================
     // 🔥 إعدادات Firebase
     // ============================================================
@@ -164,55 +101,42 @@
         appId: "1:814051581766:web:61fafe5f21c45811d70f47"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    // تهيئة Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    console.log('🔥 Firebase متصل!');
 
     // ============================================================
-    // 📦 الحالة العامة
+    // 📦 دوال الواجهة
     // ============================================================
-    let currentUserData = null;
-
-    // ============================================================
-    // 🖥️ دوال الواجهة (سريعة وخفيفة)
-    // ============================================================
-    const showScreen = (id) => {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        hideToast();
-    };
-    const showToast = (msg, type = '') => {
+    function showToast(msg, type = '') {
         const t = document.getElementById('toast');
         t.textContent = msg;
         t.style.display = 'block';
         t.className = 'toast ' + type;
         clearTimeout(window.toastTimer);
-        window.toastTimer = setTimeout(() => { t.style.display = 'none'; }, 3500);
-    };
-    const hideToast = () => {
-        const t = document.getElementById('toast');
-        t.style.display = 'none';
-        t.className = 'toast';
-    };
-    const showLoading = (show) => {
-        document.getElementById('mainLoading').style.display = show ? 'block' : 'none';
-        document.getElementById('mainContent').style.display = show ? 'none' : 'block';
-    };
+        window.toastTimer = setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
 
     // ============================================================
-    // 🔐 المصادقة (محسّنة بالتحقق المسبق)
+    // 🔐 المصادقة
     // ============================================================
-    window.register = async function() {
+    function register() {
         const username = document.getElementById('regUser').value.trim();
         const password = document.getElementById('regPass').value;
         const city = document.getElementById('regCity').value.trim();
         const phone = document.getElementById('regPhone').value.trim();
-        const bio = document.getElementById('regBio').value.trim();
         const sector = document.getElementById('regSector').value;
-        const role = document.getElementById('regRoleOwner').classList.contains('active') ? 'owner' : 'worker';
 
-        if (!username || !password || !city || !phone || !sector) {
-            showToast('❌ الرجاء ملء جميع الحقول المطلوبة', 'error');
+        if (!username || !password || !city || !phone) {
+            showToast('❌ املأ جميع الحقول', 'error');
             return;
         }
         if (password.length < 6) {
@@ -221,131 +145,115 @@
         }
 
         const email = username + '@khdma.app';
-        try {
-            // التحقق المسبق من وجود البريد
-            const methods = await fetchSignInMethodsForEmail(auth, email);
-            if (methods.length) {
-                showToast('❌ هذا الاسم مستخدم، اختر اسماً آخر', 'error');
-                document.getElementById('regUser').classList.add('input-error');
-                return;
-            }
+        console.log('📧 محاولة التسجيل:', email);
 
-            const { user } = await createUserWithEmailAndPassword(auth, email, password);
-            const sectorIcons = { 'مخبز':'🥖','مقهى':'☕','مطعم':'🍽️','سناك':'🍔','محلبات':'🍦','مطعم_وجبات_سريعة':'🍟','مطعم_عائلي':'👨‍👩‍👦','مطعم_فاخر':'✨','أخرى':'📌' };
-            await setDoc(doc(db, 'users', user.uid), {
-                username, email, city, phone,
-                bio: bio || (role === 'worker' ? 'مهني محترف' : 'منشأة متخصصة'),
-                role, sector, sectorIcon: sectorIcons[sector] || '🏪',
-                displayName: username,
-                specialty: role === 'worker' ? 'طباخ' : '',
-                workerStatus: role === 'worker' ? 'available' : '',
-                createdAt: new Date().toISOString()
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log('✅ تم إنشاء المستخدم:', user.uid);
+
+                return db.collection('users').doc(user.uid).set({
+                    username: username,
+                    email: email,
+                    city: city,
+                    phone: phone,
+                    sector: sector,
+                    role: 'worker',
+                    displayName: username,
+                    createdAt: new Date().toISOString()
+                });
+            })
+            .then(() => {
+                showToast('🎉 تم التسجيل بنجاح!', 'success');
+                // تسجيل الدخول تلقائي
+            })
+            .catch((error) => {
+                console.error('❌ خطأ:', error);
+                if (error.code === 'auth/email-already-in-use') {
+                    showToast('❌ هذا الاسم مستخدم', 'error');
+                } else {
+                    showToast('❌ ' + error.message, 'error');
+                }
             });
-            showToast('🎉 تم التسجيل بنجاح!', 'success');
-        } catch (e) {
-            console.error(e);
-            if (e.code === 'auth/email-already-in-use') {
-                showToast('❌ هذا الاسم مستخدم، اختر اسماً آخر', 'error');
-                document.getElementById('regUser').classList.add('input-error');
-            } else if (e.code === 'auth/weak-password') {
-                showToast('❌ كلمة المرور ضعيفة، استخدم 6 أحرف على الأقل', 'error');
-            } else {
-                showToast('❌ خطأ: ' + e.message, 'error');
-            }
-        }
-    };
+    }
 
-    window.login = async function() {
+    function login() {
         const username = document.getElementById('loginUser').value.trim();
         const password = document.getElementById('loginPass').value;
+
         if (!username || !password) {
             showToast('❌ أدخل اسم المستخدم وكلمة المرور', 'error');
             return;
         }
-        try {
-            await signInWithEmailAndPassword(auth, username + '@khdma.app', password);
-        } catch (e) {
-            console.error(e);
-            if (e.code === 'auth/user-not-found') {
-                showToast('❌ هذا المستخدم غير موجود، قم بالتسجيل أولاً', 'error');
-            } else if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
-                showToast('❌ اسم المستخدم أو كلمة المرور غير صحيحة', 'error');
-            } else {
-                showToast('❌ خطأ: ' + e.message, 'error');
-            }
-        }
-    };
 
-    window.logout = async function() {
-        try {
-            await signOut(auth);
-            showToast('👋 تم تسجيل الخروج', '');
-        } catch (e) {
-            showToast('❌ خطأ: ' + e.message, 'error');
-        }
-    };
+        const email = username + '@khdma.app';
+        console.log('📧 محاولة الدخول:', email);
 
-    window.selectRegRole = (role) => {
-        document.querySelectorAll('#registerScreen .role-card').forEach(el => el.classList.remove('active'));
-        document.getElementById(role === 'worker' ? 'regRoleWorker' : 'regRoleOwner').classList.add('active');
-    };
-
-    // ============================================================
-    // 🔄 تحديث الواجهة عند تغير حالة المستخدم
-    // ============================================================
-    const updateUI = (userData) => {
-        const badge = document.getElementById('userBadge');
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (userData) {
-            badge.style.display = 'inline-flex';
-            badge.textContent = '👋 ' + (userData.displayName || userData.username);
-            logoutBtn.style.display = 'inline-block';
-            document.getElementById('welcomeMessage').textContent = 'مرحباً ' + (userData.displayName || userData.username) + '!';
-            showScreen('mainScreen');
-            showLoading(false);
-        } else {
-            badge.style.display = 'none';
-            logoutBtn.style.display = 'none';
-            showScreen('loginScreen');
-            showLoading(false);
-        }
-    };
-
-    // ============================================================
-    // 🔄 مراقبة حالة المصادقة (خفيفة)
-    // ============================================================
-    onAuthStateChanged(auth, async (user) => {
-        showLoading(true);
-        if (user) {
-            try {
-                const docSnap = await getDoc(doc(db, 'users', user.uid));
-                if (docSnap.exists()) {
-                    currentUserData = { id: user.uid, ...docSnap.data() };
-                    updateUI(currentUserData);
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                console.log('✅ تم تسجيل الدخول:', userCredential.user.uid);
+            })
+            .catch((error) => {
+                console.error('❌ خطأ:', error);
+                if (error.code === 'auth/user-not-found') {
+                    showToast('❌ هذا المستخدم غير موجود', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    showToast('❌ كلمة المرور غير صحيحة', 'error');
                 } else {
-                    await signOut(auth);
-                    showToast('⚠️ بيانات المستخدم غير مكتملة، حاول مرة أخرى', 'error');
-                    showLoading(false);
+                    showToast('❌ ' + error.message, 'error');
                 }
-            } catch (e) {
-                console.error(e);
-                showToast('❌ حدث خطأ: ' + e.message, 'error');
-                showLoading(false);
-            }
+            });
+    }
+
+    function logout() {
+        auth.signOut()
+            .then(() => {
+                showToast('👋 تم تسجيل الخروج', '');
+            })
+            .catch((error) => {
+                showToast('❌ ' + error.message, 'error');
+            });
+    }
+
+    // ============================================================
+    // 🔄 مراقبة حالة المستخدم
+    // ============================================================
+    auth.onAuthStateChanged((user) => {
+        console.log('🔄 حالة المستخدم:', user ? 'مسجل' : 'غير مسجل');
+
+        if (user) {
+            // جلب بيانات المستخدم من Firestore
+            db.collection('users').doc(user.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        document.getElementById('welcomeName').textContent = 'مرحباً ' + (data.displayName || data.username) + '!';
+                        showScreen('mainScreen');
+                    } else {
+                        console.warn('⚠️ لا توجد بيانات للمستخدم');
+                        showScreen('loginScreen');
+                    }
+                })
+                .catch((error) => {
+                    console.error('❌ خطأ في جلب البيانات:', error);
+                    showScreen('loginScreen');
+                });
         } else {
-            currentUserData = null;
-            updateUI(null);
-            showLoading(false);
+            showScreen('loginScreen');
         }
     });
 
     // ============================================================
-    // 🚀 جعل الدوال عالمية للـ HTML
+    // 🚀 جعل الدوال عالمية
     // ============================================================
     window.showScreen = showScreen;
+    window.register = register;
+    window.login = login;
+    window.logout = logout;
     window.showToast = showToast;
 
-    console.log('🥖🍽️ تطبيق خدمة - جاهز وسريع');
+    console.log('🥖 تطبيق خدمة - جاهز!');
+    console.log('🔑 استخدم: مهني_محمد / 123456 (إذا كان موجوداً)');
 </script>
 
 </body>
